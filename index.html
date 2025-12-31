@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coauthored</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+    
+    .tagline {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    h1, h2, h3 {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1rem; }
+    
+    p {
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+    
+    .field {
+      margin-bottom: 1.5rem;
+    }
+    
+    .field-label {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    .field-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .option {
+      display: flex;
+      align-items: flex-start;
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .option:hover {
+      border-color: var(--primary);
+    }
+    
+    .option.selected {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+    
+    .option input {
+      margin-right: 0.75rem;
+      margin-top: 0.125rem;
+    }
+    
+    .option-content {
+      flex: 1;
+    }
+    
+    .option-label {
+      font-weight: 500;
+    }
+    
+    .option-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+    
+    .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+    
+    .progress {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    
+    .progress-bar {
+      height: 0.5rem;
+      background: var(--border);
+      border-radius: 0.25rem;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      transition: width 0.3s;
+    }
+    
+    .output {
+      background: #1e293b;
+      color: #4ade80;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+      font-size: 0.875rem;
+      word-break: break-all;
+      margin-bottom: 0.5rem;
+    }
+    
+    .output-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.25rem;
+    }
+    
+    .output-label span {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    
+    .copy-btn {
+      font-size: 0.75rem;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .copy-btn:hover {
+      text-decoration: underline;
+    }
+    
+    .badge-preview {
+      display: inline-flex;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border-radius: 0.25rem;
+    }
+    
+    .assessment {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+    
+    .assessment-label {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .assessment-note {
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .grid-item {
+      background: var(--bg);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+    }
+    
+    .grid-item-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    
+    .grid-item-value {
+      font-weight: 500;
+    }
+    
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .tag {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+    }
+    
+    .notice {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .notice-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .notice p {
+      font-size: 0.875rem;
+      margin: 0;
+    }
+    
+    .expand-btn {
+      font-size: 0.75rem;
+      color: var(--primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    footer {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    
+    footer p {
+      margin-bottom: 0.5rem;
+    }
+    
+    .category-header {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .category-header h2 {
+      margin-bottom: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div>
+        <a href="#" class="logo">Coauthored</a>
+        <div class="tagline">Tell the story of how humans and AI built this together</div>
+      </div>
+    </div>
+  </header>
+  
+  <main id="app">
+    <!-- Content rendered by JS -->
+  </main>
+  
+  <footer>
+    <p><strong>Coauthored</strong> — a communication tool, not a certification.</p>
+    <p>Statements are self-reported, unverified, and subjective. No warranty.</p>
+  </footer>
+
+  <script type="module">
+    import { encode, decode, parseUrl, buildUrl, badgeUrl, badgeMarkdown } from './core.js';
+    import { SCHEMA, CATEGORIES, getFieldsByCategory } from './schema.js';
+    import { assess, getLabel, formatFlags } from './assess.js';
+    
+    // State
+    let formData = {};
+    let currentStep = 0;
+    
+    const categories = Object.entries(CATEGORIES).sort((a, b) => a[1].order - b[1].order);
+    const fieldsByCategory = getFieldsByCategory();
+    
+    // Router
+    function route() {
+      const hash = window.location.hash.slice(1);
+      
+      if (!hash || hash === '/') {
+        renderWizard();
+      } else {
+        // Try to decode as a statement
+        const data = decode(hash);
+        if (data) {
+          renderViewer(data, hash);
+        } else {
+          renderWizard();
+        }
+      }
+    }
+    
+    // Wizard renderer
+    function renderWizard() {
+      const app = document.getElementById('app');
+      const [catKey, catMeta] = categories[currentStep] || categories[0];
+      const fields = fieldsByCategory[catKey] || [];
+      
+      const totalSteps = categories.length;
+      const progress = ((currentStep + 1) / totalSteps) * 100;
+      
+      app.innerHTML = `
+        <div class="card">
+          <div class="progress">
+            <span>Step ${currentStep + 1} of ${totalSteps}</span>
+            <span>${catMeta.label}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+          
+          <div class="notice">
+            <div class="notice-title">ℹ️ Good Faith Statement</div>
+            <p>You're creating a self-reported statement about AI involvement. Not verified, not binding — just communication.</p>
+          </div>
+          
+          <div class="category-header">
+            <h2>${catMeta.label}</h2>
+            <p>${catMeta.description}</p>
+          </div>
+          
+          ${fields.map(f => renderField(f)).join('')}
+          
+          <div class="btn-group">
+            ${currentStep > 0 ? `<button class="btn btn-secondary" onclick="window.prevStep()">Previous</button>` : ''}
+            ${currentStep < totalSteps - 1 
+              ? `<button class="btn btn-primary" onclick="window.nextStep()">Next</button>`
+              : `<button class="btn btn-primary" onclick="window.showResult()">Generate Statement</button>`
+            }
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3>Live Preview</h3>
+          ${renderPreview()}
+        </div>
+      `;
+      
+      // Bind event listeners
+      bindFieldListeners();
+    }
+    
+    function renderField(field) {
+      const { key, type, label, description, values, placeholder, multiline } = field;
+      const currentValue = getNestedValue(formData, key);
+      
+      if (type === 'enum') {
+        return `
+          <div class="field" data-key="${key}">
+            <label class="field-label">${label}</label>
+            <div class="field-desc">${description}</div>
+            <div class="options">
+              ${values.map(v => `
+                <label class="option ${currentValue === v.value ? 'selected' : ''}">
+                  <input type="radio" name="${key}" value="${v.value}" ${currentValue === v.value ? 'checked' : ''}>
+                  <div class="option-content">
+                    <div class="option-label">${v.label}</div>
+                    <div class="option-desc">${v.desc}</div>
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      if (type === 'flags') {
+        const selected = Array.isArray(currentValue) ? currentValue : (currentValue ? [currentValue] : []);
+        return `
+          <div class="field" data-key="${key}">
+            <label class="field-label">${label}</label>
+            <div class="field-desc">${description}</div>
+            <div class="options">
+              ${values.map(v => `
+                <label class="option ${selected.includes(v.value) ? 'selected' : ''}">
+                  <input type="checkbox" name="${key}" value="${v.value}" ${selected.includes(v.value) ? 'checked' : ''}>
+                  <div class="option-content">
+                    <div class="option-label">${v.label}</div>
+                    <div class="option-desc">${v.desc}</div>
+                  </div>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      if (type === 'text') {
+        if (multiline) {
+          return `
+            <div class="field" data-key="${key}">
+              <label class="field-label">${label}</label>
+              <div class="field-desc">${description}</div>
+              <textarea name="${key}" placeholder="${placeholder || ''}">${currentValue || ''}</textarea>
+            </div>
+          `;
+        }
+        return `
+          <div class="field" data-key="${key}">
+            <label class="field-label">${label}</label>
+            <div class="field-desc">${description}</div>
+            <input type="text" name="${key}" value="${currentValue || ''}" placeholder="${placeholder || ''}">
+          </div>
+        `;
+      }
+      
+      if (type === 'date') {
+        // Auto-fill with today
+        if (!currentValue) {
+          setNestedValue(formData, key, new Date().toISOString().split('T')[0]);
+        }
+        return ''; // Hidden, auto-filled
+      }
+      
+      return '';
+    }
+    
+    function renderPreview() {
+      const assessment = assess(formData);
+      const encoded = encode(formData);
+      const url = buildUrl(encoded);
+      
+      return `
+        <div class="assessment" style="background: #${assessment.color}">
+          <div class="assessment-label">${assessment.label}</div>
+          <div class="assessment-note">Author's Assessment</div>
+        </div>
+        <div class="output-label">
+          <span>URL (${encoded.length} chars)</span>
+          <button class="copy-btn" onclick="window.copyText('${url}')">Copy</button>
+        </div>
+        <div class="output">${url}</div>
+      `;
+    }
+    
+    function bindFieldListeners() {
+      // Radio buttons
+      document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const key = e.target.name;
+          setNestedValue(formData, key, e.target.value);
+          updateOptionStyles(e.target);
+          updatePreview();
+        });
+      });
+      
+      // Checkboxes
+      document.querySelectorAll('input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+          const key = e.target.name;
+          const checkboxes = document.querySelectorAll(`input[name="${key}"]:checked`);
+          const values = Array.from(checkboxes).map(cb => cb.value);
+          setNestedValue(formData, key, values);
+          updateOptionStyles(e.target);
+          updatePreview();
+        });
+      });
+      
+      // Text inputs
+      document.querySelectorAll('input[type="text"], textarea').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const key = e.target.name;
+          setNestedValue(formData, key, e.target.value);
+          updatePreview();
+        });
+      });
+    }
+    
+    function updateOptionStyles(input) {
+      const field = input.closest('.field');
+      field.querySelectorAll('.option').forEach(opt => {
+        const inp = opt.querySelector('input');
+        opt.classList.toggle('selected', inp.checked);
+      });
+    }
+    
+    function updatePreview() {
+      const previewContainer = document.querySelector('.card:last-child');
+      if (previewContainer) {
+        previewContainer.innerHTML = `<h3>Live Preview</h3>${renderPreview()}`;
+      }
+    }
+    
+    // Viewer renderer
+    function renderViewer(data, encoded) {
+      const app = document.getElementById('app');
+      const assessment = assess(data);
+      const url = buildUrl(encoded);
+      const badge = badgeMarkdown(encoded, assessment.label, assessment.color);
+      
+      app.innerHTML = `
+        <div class="notice">
+          <div class="notice-title">ℹ️ Good Faith Statement</div>
+          <p>This is a self-reported statement. Not verified, not binding — just communication.</p>
+          <button class="expand-btn" onclick="window.toggleNotice(this)">What does this mean?</button>
+          <div class="hidden" id="notice-expanded">
+            <br>
+            <p>• <strong>Voluntary:</strong> The author shared this in good faith.</p>
+            <p>• <strong>Self-reported:</strong> Nothing here has been verified.</p>
+            <p>• <strong>Subjective:</strong> Terms like "oversight" reflect the author's judgment.</p>
+            <p>• <strong>No warranty:</strong> No guarantees about accuracy.</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="assessment" style="background: #${assessment.color}">
+            <div class="assessment-label">${assessment.label}</div>
+            <div class="assessment-note">Author's Assessment</div>
+          </div>
+          
+          <div class="grid">
+            ${renderViewerField('Scope', data.scope)}
+            ${renderViewerField('Intent', data.intent)}
+            ${renderViewerField('Trajectory', data.trajectory)}
+            ${renderViewerField('Oversight', data.oversight)}
+            ${renderViewerField('Deployment', data.risk?.deploy)}
+            ${renderViewerField('Data Sensitivity', data.risk?.data)}
+            ${renderViewerField('Safety', data.risk?.safety)}
+          </div>
+          
+          ${data.ai ? `
+            <div style="margin-top: 1rem">
+              <div class="grid-item-label">AI Involvement</div>
+              <div class="tags">
+                ${formatFlags(data.ai).map(t => `<span class="tag">${t}</span>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+          
+          ${data.valid ? `
+            <div style="margin-top: 1rem">
+              <div class="grid-item-label">Validation</div>
+              <div class="tags">
+                ${formatFlags(data.valid).map(t => `<span class="tag">${t}</span>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+          
+          ${data.tools ? `
+            <div style="margin-top: 1rem">
+              <div class="grid-item-label">AI Tools</div>
+              <div class="grid-item-value">${data.tools}</div>
+            </div>
+          ` : ''}
+          
+          ${data.notes ? `
+            <div style="margin-top: 1rem">
+              <div class="grid-item-label">Notes</div>
+              <div class="grid-item-value">${data.notes}</div>
+            </div>
+          ` : ''}
+        </div>
+        
+        <div class="card">
+          <h3>Share</h3>
+          
+          <div class="output-label">
+            <span>URL</span>
+            <button class="copy-btn" onclick="window.copyText('${url}')">Copy</button>
+          </div>
+          <div class="output">${url}</div>
+          
+          <div class="output-label" style="margin-top: 1rem">
+            <span>Markdown Badge</span>
+            <button class="copy-btn" onclick="window.copyText(\`${badge.replace(/`/g, '\\`')}\`)">Copy</button>
+          </div>
+          <div class="output">${escapeHtml(badge)}</div>
+          
+          <div style="margin-top: 1rem">
+            <div class="grid-item-label">Preview</div>
+            <div class="badge-preview">
+              <img src="${badgeUrl(assessment.label, assessment.color)}" alt="Coauthored badge">
+            </div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 1rem; text-align: center">
+          <a href="#" class="btn btn-secondary">Create New Statement</a>
+        </div>
+        
+        <div class="card" style="margin-top: 1rem">
+          <h3>Origin & Version</h3>
+          <p>Origin: <strong>${data._o || 'unknown'}</strong> • Version: <strong>${data._v || '?'}</strong></p>
+          <p style="font-size: 0.75rem; margin: 0">Created: ${data.created || 'unknown'}</p>
+        </div>
+      `;
+    }
+    
+    function renderViewerField(label, value) {
+      if (!value) return '';
+      return `
+        <div class="grid-item">
+          <div class="grid-item-label">${label}</div>
+          <div class="grid-item-value">${getLabel(null, value)}</div>
+        </div>
+      `;
+    }
+    
+    // Helpers
+    function getNestedValue(obj, path) {
+      const parts = path.split('.');
+      let current = obj;
+      for (const part of parts) {
+        if (current === null || current === undefined) return undefined;
+        current = current[part];
+      }
+      return current;
+    }
+    
+    function setNestedValue(obj, path, value) {
+      const parts = path.split('.');
+      let current = obj;
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i];
+        if (!(part in current)) current[part] = {};
+        current = current[part];
+      }
+      current[parts[parts.length - 1]] = value;
+    }
+    
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    
+    // Global functions
+    window.nextStep = () => {
+      currentStep = Math.min(currentStep + 1, categories.length - 1);
+      renderWizard();
+      window.scrollTo(0, 0);
+    };
+    
+    window.prevStep = () => {
+      currentStep = Math.max(currentStep - 1, 0);
+      renderWizard();
+      window.scrollTo(0, 0);
+    };
+    
+    window.showResult = () => {
+      const encoded = encode(formData);
+      window.location.hash = encoded;
+    };
+    
+    window.copyText = async (text) => {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    };
+    
+    window.toggleNotice = (btn) => {
+      const expanded = document.getElementById('notice-expanded');
+      expanded.classList.toggle('hidden');
+      btn.textContent = expanded.classList.contains('hidden') ? 'What does this mean?' : 'Show less';
+    };
+    
+    // Initialize
+    window.addEventListener('hashchange', route);
+    route();
+  </script>
+</body>
+</html>
