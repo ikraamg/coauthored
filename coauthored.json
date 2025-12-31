@@ -1,20 +1,44 @@
 {
   "meta": {
     "formatVersion": 1,
-    "schemaVersion": "1.0.0",
+    "schemaVersion": "2.0.0",
     "origin": "co",
     "name": "Coauthored",
-    "description": "Self-describing AI involvement format",
+    "description": "A simple way to share how AI helped build your code",
     "url": "https://coauthored.dev"
   },
 
   "categories": {
-    "basics": { "label": "Basics", "description": "What is this code for?", "order": 1 },
-    "ai": { "label": "AI Involvement", "description": "How was AI involved?", "order": 2 },
-    "oversight": { "label": "Human Oversight", "description": "How was it reviewed?", "order": 3 },
-    "risk": { "label": "Risk Context", "description": "What's at stake?", "order": 4 },
-    "validation": { "label": "Validation", "description": "What testing was done?", "order": 5 },
-    "meta": { "label": "Details", "description": "Additional information", "order": 6 }
+    "basics": {
+      "label": "The code",
+      "description": "",
+      "order": 1
+    },
+    "ai": {
+      "label": "AI involvement",
+      "description": "",
+      "order": 2
+    },
+    "oversight": {
+      "label": "Human review",
+      "description": "",
+      "order": 3
+    },
+    "context": {
+      "label": "Context",
+      "description": "",
+      "order": 4
+    },
+    "validation": {
+      "label": "Validation",
+      "description": "",
+      "order": 5
+    },
+    "meta": {
+      "label": "Other",
+      "description": "",
+      "order": 6
+    }
   },
 
   "fields": {
@@ -24,204 +48,210 @@
       "description": "What does this statement cover?",
       "category": "basics",
       "values": [
-        { "value": "project", "label": "Project", "desc": "Entire repository or project" },
-        { "value": "pr", "label": "Pull Request", "desc": "Specific PR or changeset" },
+        { "value": "project", "label": "Project", "desc": "Entire repository" },
+        {
+          "value": "pr",
+          "label": "Pull request",
+          "desc": "Specific changeset"
+        },
         { "value": "file", "label": "File", "desc": "Single file" },
-        { "value": "component", "label": "Component", "desc": "Module or component" }
+        {
+          "value": "component",
+          "label": "Component",
+          "desc": "Module or feature"
+        }
       ]
     },
 
     "intent": {
-      "type": "enum",
-      "label": "Intent",
-      "description": "What's the purpose of this code?",
+      "type": "flags",
+      "label": "Code type",
+      "description": "Select all that apply",
       "category": "basics",
       "values": [
-        { "value": "explore", "label": "Exploration", "desc": "Testing ideas, learning the problem space" },
-        { "value": "proto", "label": "Prototype", "desc": "Quick proof of concept, not for production" },
-        { "value": "validate", "label": "Validation", "desc": "Verifying an approach before committing" },
-        { "value": "prod", "label": "Production", "desc": "Intended for real use" },
-        { "value": "learn", "label": "Learning", "desc": "Educational purposes" }
+        { "value": "explore", "label": "Exploratory", "desc": "Testing ideas" },
+        {
+          "value": "proto",
+          "label": "Prototype",
+          "desc": "Not production-ready"
+        },
+        { "value": "prod", "label": "Production", "desc": "Live use" },
+        { "value": "learn", "label": "Learning", "desc": "Educational" }
       ]
     },
 
-    "trajectory": {
-      "type": "enum",
-      "label": "Trajectory",
-      "description": "Where is this code going?",
+    "traj": {
+      "type": "flags",
+      "label": "Lifecycle",
+      "description": "Where is this headed?",
       "category": "basics",
       "values": [
         { "value": "throw", "label": "Throwaway", "desc": "Will be discarded" },
-        { "value": "iter", "label": "Iterate", "desc": "Will evolve toward production" },
-        { "value": "maint", "label": "Maintain", "desc": "Long-term maintenance expected" },
-        { "value": "unk", "label": "Unknown", "desc": "Not yet determined" }
+        { "value": "iter", "label": "Evolving", "desc": "May grow" },
+        { "value": "maint", "label": "Long-term", "desc": "Needs maintenance" }
       ]
     },
 
     "ai": {
       "type": "flags",
-      "label": "AI Involvement",
-      "description": "How was AI involved?",
+      "label": "AI contributions",
+      "description": "What did AI help with?",
       "category": "ai",
       "values": [
-        { "value": "doc", "label": "Documentation", "desc": "README, comments, explanations" },
-        { "value": "code", "label": "Code Generation", "desc": "AI wrote code that was used" },
-        { "value": "review", "label": "Code Review", "desc": "AI reviewed human-written code" },
-        { "value": "arch", "label": "Architecture", "desc": "Design decisions influenced by AI" },
-        { "value": "test", "label": "Testing", "desc": "Test generation or strategy" },
-        { "value": "sec", "label": "Security Sensitive", "desc": "AI touched auth, crypto, or security" }
+        {
+          "value": "doc",
+          "label": "Documentation",
+          "desc": "READMEs, comments"
+        },
+        { "value": "code", "label": "Code generation", "desc": "Wrote code" },
+        {
+          "value": "review",
+          "label": "Code review",
+          "desc": "Reviewed human code"
+        },
+        {
+          "value": "arch",
+          "label": "Architecture",
+          "desc": "Design decisions"
+        },
+        { "value": "test", "label": "Testing", "desc": "Tests or strategy" }
       ]
     },
 
-    "tools": {
+    "tool": {
+      "type": "flags",
+      "label": "Tools used",
+      "description": "",
+      "category": "ai",
+      "values": [
+        { "value": "claude", "label": "Claude", "desc": "" },
+        { "value": "copilot", "label": "GitHub Copilot", "desc": "" },
+        { "value": "gpt", "label": "ChatGPT", "desc": "" },
+        { "value": "cursor", "label": "Cursor", "desc": "" },
+        { "value": "gemini", "label": "Gemini", "desc": "" }
+      ]
+    },
+
+    "tool.other": {
       "type": "text",
-      "label": "AI Tools",
-      "description": "Which AI tools were used?",
+      "label": "Other tools",
+      "description": "",
       "category": "ai",
-      "placeholder": "Claude, Copilot, GPT-4..."
+      "placeholder": "Tools not listed above"
     },
 
-    "oversight": {
+    "review": {
       "type": "enum",
-      "label": "Human Oversight",
-      "description": "How thoroughly did humans review the AI-assisted work?",
+      "label": "Review depth",
+      "description": "How closely was AI output reviewed?",
       "category": "oversight",
-      "score": { "line": 5, "func": 4, "spot": 3, "tests": 2, "min": 1, "none": 0 },
       "values": [
-        { "value": "line", "label": "Line by Line", "desc": "Every line reviewed and understood" },
-        { "value": "func", "label": "Functional", "desc": "Tested behavior, implementation reviewed" },
-        { "value": "spot", "label": "Spot Check", "desc": "Key areas reviewed, rest trusted" },
-        { "value": "tests", "label": "Tests Only", "desc": "Relied on test suite passing" },
-        { "value": "min", "label": "Minimal", "desc": "Brief review only" },
-        { "value": "none", "label": "None", "desc": "No human review performed" }
+        { "value": "line", "label": "Line-by-line", "desc": "Read all code" },
+        {
+          "value": "func",
+          "label": "Thorough testing",
+          "desc": "Verified behavior"
+        },
+        { "value": "spot", "label": "Spot checked", "desc": "Key sections" },
+        {
+          "value": "tests",
+          "label": "Tests only",
+          "desc": "Trusted passing tests"
+        },
+        { "value": "min", "label": "Minimal", "desc": "Quick glance" },
+        { "value": "none", "label": "None", "desc": "No review" }
       ]
     },
 
-    "risk.deploy": {
+    "env": {
       "type": "enum",
-      "label": "Deployment",
-      "description": "Where will this code run?",
-      "category": "risk",
-      "score": { "local": 0, "int": 1, "cust": 3, "pub": 4 },
+      "label": "Environment",
+      "description": "Where does this run?",
+      "category": "context",
       "values": [
-        { "value": "local", "label": "Local Only", "desc": "Developer machine only" },
-        { "value": "int", "label": "Internal", "desc": "Internal tools, team use" },
-        { "value": "cust", "label": "Customer Facing", "desc": "End users interact with this" },
-        { "value": "pub", "label": "Public Infrastructure", "desc": "Critical public systems" }
+        { "value": "local", "label": "Local", "desc": "Single machine" },
+        { "value": "int", "label": "Internal", "desc": "Team/company only" },
+        {
+          "value": "cust",
+          "label": "Customer-facing",
+          "desc": "End users see it"
+        },
+        { "value": "pub", "label": "Public infra", "desc": "Critical systems" }
       ]
     },
 
-    "risk.data": {
+    "data": {
       "type": "enum",
-      "label": "Data Sensitivity",
-      "description": "What data is involved?",
-      "category": "risk",
-      "score": { "none": 0, "int": 1, "pii": 2, "fin": 3, "health": 4 },
+      "label": "Data sensitivity",
+      "description": "What data does it touch?",
+      "category": "context",
       "values": [
         { "value": "none", "label": "None", "desc": "No sensitive data" },
-        { "value": "int", "label": "Internal", "desc": "Internal business data" },
-        { "value": "pii", "label": "PII", "desc": "Personal identifiable information" },
-        { "value": "fin", "label": "Financial", "desc": "Payment, banking data" },
-        { "value": "health", "label": "Health", "desc": "Medical, health records" }
-      ]
-    },
-
-    "risk.safety": {
-      "type": "enum",
-      "label": "Safety Implications",
-      "description": "What are the safety implications?",
-      "category": "risk",
-      "score": { "none": 0, "prop": 2, "well": 3, "life": 5 },
-      "values": [
-        { "value": "none", "label": "None", "desc": "No safety implications" },
-        { "value": "prop", "label": "Property", "desc": "Could affect property/assets" },
-        { "value": "well", "label": "Wellbeing", "desc": "Could affect human wellbeing" },
-        { "value": "life", "label": "Life Critical", "desc": "Human life could be at risk" }
+        { "value": "int", "label": "Internal", "desc": "Company data" },
+        { "value": "pii", "label": "PII", "desc": "Personal info" },
+        {
+          "value": "regulated",
+          "label": "Regulated",
+          "desc": "Legal/financial/health"
+        }
       ]
     },
 
     "valid": {
       "type": "flags",
       "label": "Validation",
-      "description": "What verification has been done?",
+      "description": "How was it verified?",
       "category": "validation",
       "values": [
-        { "value": "unit", "label": "Unit Tests", "desc": "Unit test coverage" },
-        { "value": "integ", "label": "Integration Tests", "desc": "Integration/E2E tests" },
-        { "value": "sec", "label": "Security Review", "desc": "Security audit performed" },
-        { "value": "expert", "label": "Domain Expert", "desc": "Reviewed by domain expert" },
-        { "value": "prod", "label": "Production Proven", "desc": "Running in production" }
+        { "value": "unit", "label": "Unit tests", "desc": "" },
+        { "value": "integ", "label": "Integration tests", "desc": "" },
+        { "value": "sec", "label": "Security review", "desc": "" },
+        { "value": "expert", "label": "Expert review", "desc": "" },
+        { "value": "deployed", "label": "In production", "desc": "" }
       ]
     },
 
     "notes": {
       "type": "text",
       "label": "Notes",
-      "description": "Any additional context?",
+      "description": "Additional context?",
       "category": "meta",
-      "placeholder": "Optional notes...",
+      "placeholder": "Context, caveats, details...",
       "multiline": true
     },
 
     "created": {
       "type": "date",
       "label": "Created",
-      "description": "When was this statement created?",
+      "description": "",
       "category": "meta",
       "auto": true
     }
   },
 
-  "scoring": {
-    "computed": {
-      "risk": {
-        "type": "max",
-        "fields": ["risk.deploy", "risk.data", "risk.safety"]
-      },
-      "oversight": {
-        "type": "lookup",
-        "field": "oversight"
-      },
-      "hasTests": {
-        "type": "includes_any",
-        "field": "valid",
-        "values": ["unit", "integ"]
-      },
-      "hasReview": {
-        "type": "includes_any",
-        "field": "valid",
-        "values": ["sec", "expert"]
-      }
-    }
-  },
-
-  "rules": [
-    { "id": "critical", "condition": "risk >= 4 AND oversight <= 2", "level": "critical", "color": "dc2626", "label": "Needs Review" },
-    { "id": "warning", "condition": "risk >= 3 AND oversight <= 2", "level": "warning", "color": "f59e0b", "label": "Caution" },
-    { "id": "good", "condition": "oversight >= 4 AND hasTests", "level": "good", "color": "16a34a", "label": "Well Supervised" },
-    { "id": "moderate", "condition": "oversight >= 3", "level": "moderate", "color": "3b82f6", "label": "Supervised" },
-    { "id": "default", "condition": "true", "level": "info", "color": "6b7280", "label": "Documented" }
-  ],
-
   "ui": {
     "title": "Coauthored",
-    "tagline": "Tell the story of how humans and AI built this together",
+    "tagline": "Share how you and AI built this together",
+    "badge": {
+      "text": "AI Coauthored",
+      "color": "3b82f6"
+    },
     "notices": {
       "wizard": {
-        "title": "Good Faith Statement",
-        "text": "You're creating a self-reported statement about AI involvement. Not verified, not binding - just communication."
+        "title": "Good faith disclosure",
+        "text": "This is an informal note about how you used AI, not a legal document or binding statement. There's no audit or verification process. We encourage you to describe your AI collaboration accurately and in your own words."
       },
       "viewer": {
-        "title": "Good Faith Statement",
-        "text": "This is a self-reported statement. Not verified, not binding - just communication.",
+        "title": "About this statement",
+        "text": "This is an informal, self-reported note from the author about how AI was involved. It's not legally binding, verified, or audited. It's a good-faith description intended to provide helpful context.",
         "expanded": [
-          "Voluntary: The author shared this in good faith.",
-          "Self-reported: Nothing here has been verified.",
-          "Subjective: Terms like 'oversight' reflect the author's judgment.",
-          "No warranty: No guarantees about accuracy."
+          "Informal: This carries no legal weight. It provides context only.",
+          "Voluntary: The author chose to share this information.",
+          "Self-reported: This has not been independently verified.",
+          "Subjective: Terms like 'thorough' may be interpreted differently by different people."
         ]
       }
     },
-    "footer": "Coauthored - a communication tool, not a certification. Statements are self-reported and unverified."
+    "footer": "Coauthored is an informal way to share how AI helped build your code. Not a certification, not legally binding: transparency through voluntary disclosure."
   }
 }
