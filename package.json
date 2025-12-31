@@ -1,0 +1,14 @@
+{
+  "name": "coauthored",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Self-describing format for documenting AI involvement in code",
+  "main": "core.js",
+  "bin": {
+    "coauthored": "./cli.js"
+  },
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "npx serve ."
+  }
+}

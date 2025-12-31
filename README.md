@@ -4,7 +4,7 @@
 
 ## What This Is
 
-A self-describing format for documenting AI involvement in code. Fully static, no server required.
+A self-describing, config-driven format for documenting AI involvement in code. Fully static, zero dependencies.
 
 | This IS | This is NOT |
 | --------- | ------------- |
@@ -15,12 +15,27 @@ A self-describing format for documenting AI involvement in code. Fully static, n
 
 ---
 
+## Quick Start
+
+```bash
+# Run locally
+python3 -m http.server 8000
+# Open http://localhost:8000
+
+# Or use CLI
+node cli.js validate
+node cli.js encode data.json
+node cli.js assess 'v:1;o:co;scope:pr;oversight:func'
+```
+
+---
+
 ## Format
 
 Statements are human-readable, self-describing strings:
 
-```plaintext
-v:1;o:co;scope:pr;intent:proto;oversight:func;risk.deploy:int;ai:doc,code;tools:Claude
+```
+v:1;o:co;scope:pr;intent:proto;oversight:func;risk.deploy:int;ai:doc,code
 ```
 
 **Structure:**
@@ -33,71 +48,92 @@ v:1;o:co;scope:pr;intent:proto;oversight:func;risk.deploy:int;ai:doc,code;tools:
 
 **Required fields:**
 
-- `v` — format version (for decoding)
+- `v` — format version
 - `o` — origin (who defined this schema: `co` = coauthored.dev)
-
-Everything else is up to the origin.
-
----
-
-## URL
-
-```plaintext
-https://coauthored.dev/#v:1;o:co;scope:pr;intent:proto;oversight:func
-```
-
-Hash-based routing — works on any static host.
 
 ---
 
 ## Architecture
 
-```plaintext
+```
 coauthored/
-├── core.js      # Universal encoder/decoder (~150 lines, zero deps)
-├── schema.js    # coauthored.dev's field definitions
-├── assess.js    # coauthored.dev's assessment logic  
-└── index.html   # Single-page app (wizard + viewer)
+├── index.html        # HTML 1.0 style UI (fetches config at runtime)
+├── core.js           # Universal encoder/decoder
+├── config.js         # Config loader + validation
+├── rules.js          # Safe expression evaluator (no eval)
+├── coauthored.json   # Single source of truth config
+├── cli.js            # CLI tool
+└── package.json      # ES Module config
 ```
 
-**core.js** is origin-agnostic. Works in browser, Node, Deno, Bun.
+**Config-driven design:** Everything is defined in `coauthored.json` — fields, categories, scoring rules, UI text. Change the config, change the behavior.
 
-**schema.js** and **assess.js** are coauthored.dev's opinions. Forks replace these.
+---
+
+## Config Structure
+
+```json
+{
+  "meta": {
+    "formatVersion": 1,
+    "schemaVersion": "1.0.0",
+    "origin": "co"
+  },
+  "categories": { /* UI groupings */ },
+  "fields": { /* field definitions with inline scores */ },
+  "scoring": {
+    "computed": { /* derived values: risk, oversight, hasTests */ }
+  },
+  "rules": [
+    { "condition": "risk >= 4 AND oversight <= 2", "level": "critical", "label": "Needs Review" }
+  ],
+  "ui": { /* theme, notices, footer */ }
+}
+```
+
+**Rules use boolean expressions** evaluated by a safe parser (no `eval()`):
+
+- Comparisons: `>=`, `<=`, `>`, `<`, `==`, `!=`
+- Logic: `AND`, `OR`, `NOT`
+- Parentheses for grouping
 
 ---
 
 ## Usage
 
-### In a browser
+### Browser
 
 ```html
 <script type="module">
-  import { encode, decode } from 'https://coauthored.dev/core.js';
-  
-  const statement = encode({ scope: 'pr', intent: 'proto' });
-  const data = decode(statement);
+  import { loadConfig, assess } from './config.js';
+  import { encode, decode } from './core.js';
+
+  const config = await loadConfig();
+  const encoded = encode({ scope: 'pr', intent: 'proto' }, config);
+  const data = decode(encoded);
+  const result = assess(data, config);
 </script>
 ```
 
-### In Node/Deno/Bun
+### CLI
 
-```javascript
-import { encode, decode, assess } from './core.js';
+```bash
+# Validate config
+node cli.js validate
 
-const data = {
-  scope: 'pr',
-  intent: 'proto',
-  oversight: 'func',
-  risk: { deploy: 'int', data: 'none' },
-  ai: ['doc', 'code'],
-  tools: 'Claude',
-};
+# Encode JSON to statement
+echo '{"scope":"pr","intent":"prod"}' > data.json
+node cli.js encode data.json
 
-const encoded = encode(data);
-// v:1;o:co;scope:pr;intent:proto;oversight:func;risk.deploy:int;risk.data:none;ai:doc,code;tools:Claude
+# Decode statement
+node cli.js decode 'v:1;o:co;scope:pr;intent:prod'
 
-const decoded = decode(encoded);
-// { _v: 1, _o: 'co', scope: 'pr', ... }
+# Assess risk/oversight
+node cli.js assess 'v:1;o:co;oversight:none;risk.deploy:pub'
+
+# Generate badge
+node cli.js badge 'v:1;o:co;oversight:func'
+node cli.js markdown 'v:1;o:co;oversight:func'
 ```
 
 ### Badge (via shields.io)
@@ -106,16 +142,14 @@ const decoded = decode(encoded);
 [![Coauthored](https://img.shields.io/badge/Coauthored-Well_Supervised-16a34a)](https://coauthored.dev/#v:1;o:co;scope:pr;...)
 ```
 
-No server needed — shields.io renders the badge.
-
 ---
 
-## coauthored.dev Schema
+## Fields
 
-Fields we use (forks can define their own):
+Default fields (defined in `coauthored.json`):
 
-| Field | Type | Values |
-| ------- | ------ | -------- |
+| Field | Type | Description |
+| ------- | ------ | ----------- |
 | `scope` | enum | project, pr, file, component |
 | `intent` | enum | explore, proto, validate, prod, learn |
 | `trajectory` | enum | throw, iter, maint, unk |
@@ -125,29 +159,46 @@ Fields we use (forks can define their own):
 | `risk.safety` | enum | none, prop, well, life |
 | `ai` | flags | doc, code, review, arch, test, sec |
 | `valid` | flags | unit, integ, sec, expert, prod |
-| `tools` | text | free text |
-| `notes` | text | free text |
-| `created` | date | YYYY-MM-DD |
+| `tools` | text | AI tools used |
+| `notes` | text | Additional context |
+| `created` | date | Auto-filled |
 
 ---
 
 ## Forking
 
-1. Copy `core.js` (unchanged — it's universal)
-2. Create your own `schema.js` with your fields
-3. Create your own `assess.js` with your logic
-4. Set a unique origin: `encode(data, 'mycompany')`
+1. Copy all files to your repo
+2. Edit `coauthored.json`:
+   - Change `meta.origin` to your identifier
+   - Add/remove/modify fields
+   - Adjust scoring rules
+3. Deploy to GitHub Pages
+4. Done — no code changes needed
 
-Decoders will see `_o: 'mycompany'` and know it's your schema.
+Your statements will have `o:yourorigin` and decoders will know it's your schema.
+
+---
+
+## Deploy to GitHub Pages
+
+```bash
+git add .
+git commit -m "Deploy coauthored"
+git push origin main
+# Enable GitHub Pages in repo settings → select main branch
+```
+
+That's it. No build step.
 
 ---
 
 ## Philosophy
 
+- **Config-driven** — all behavior defined in JSON, not code
 - **Self-describing** — payload contains field names, not just values
-- **Forward compatible** — unknown fields are preserved, not rejected
-- **Decentralized** — anyone can fork, no registry needed
-- **Human-readable** — you can parse it by eye
+- **Forward compatible** — unknown fields are preserved
+- **Decentralized** — anyone can fork, no registry
+- **Human-readable** — parse it by eye
 - **Static** — no server required
 
 ---
@@ -160,11 +211,4 @@ This is a communication tool, not a certification.
 
 ---
 
-*Built with AI. [View statement](https://coauthored.dev/#v:1;o:co;scope:project;intent:proto;trajectory:iter;ai:doc,code,arch;tools:Claude;oversight:func;risk.deploy:pub;risk.data:none;risk.safety:none)*
-
-## Next Steps to Consider
-
-- Test in browser
-- Deploy to coauthored.dev (Cloudflare Pages or similar)
-- npm publish for core.js
-- GitHub Action for CI integration (advisory, not blocking)
+*Built with AI. [View statement](https://coauthored.dev/#v:1;o:co;scope:project;intent:prod;ai:doc,code,arch;tools:Claude;oversight:func)*
