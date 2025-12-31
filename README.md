@@ -1,3 +1,5 @@
+[![AI Coauthored](https://img.shields.io/badge/AI_Coauthored-↗-3b82f6?style=flat)](https://coauthored.dev/#v:1;o:co;created:2025-12-31;scope:project;intent:explore,prod;traj:iter;ai:doc,code,arch;tool:claude;review:func;env:cust;data:none;valid:deployed;notes:~V29ya2luZyBjbG9zZWx5IHdpdGggQUkgdG8gZ3VpZGUgaXQuIENvZGUgZnVuY3Rpb25hbGl0eSB0ZXN0ZWQgYW5kIGxpZ2h0IGNvZGUgcmV2aWV3)
+
 # Coauthored
 
 **Tell the story of how humans and AI built this together.**
@@ -57,16 +59,24 @@ v:1;o:co;scope:pr;intent:proto;oversight:func;risk.deploy:int;ai:doc,code
 
 ```
 coauthored/
-├── index.html        # HTML 1.0 style UI (fetches config at runtime)
+├── index.html        # Entry point (loads modules)
+├── styles.css        # CSS with custom properties & theming
+├── js/
+│   ├── app.js        # Main orchestration & routing
+│   ├── form.js       # Wizard form rendering & data collection
+│   ├── viewer.js     # Statement viewer
+│   ├── stepper.js    # Multi-step wizard navigation
+│   ├── theme.js      # Dark/light theme toggle
+│   ├── toast.js      # Toast notifications
+│   └── draft.js      # localStorage draft persistence
 ├── core.js           # Universal encoder/decoder
 ├── config.js         # Config loader + validation
-├── rules.js          # Safe expression evaluator (no eval)
 ├── coauthored.json   # Single source of truth config
 ├── cli.js            # CLI tool
 └── package.json      # ES Module config
 ```
 
-**Config-driven design:** Everything is defined in `coauthored.json` — fields, categories, scoring rules, UI text. Change the config, change the behavior.
+**Config-driven design:** Everything is defined in `coauthored.json` — fields, categories, UI text. Change the config, change the behavior.
 
 ---
 
@@ -76,26 +86,14 @@ coauthored/
 {
   "meta": {
     "formatVersion": 1,
-    "schemaVersion": "1.0.0",
+    "schemaVersion": "2.0.0",
     "origin": "co"
   },
-  "categories": { /* UI groupings */ },
-  "fields": { /* field definitions with inline scores */ },
-  "scoring": {
-    "computed": { /* derived values: risk, oversight, hasTests */ }
-  },
-  "rules": [
-    { "condition": "risk >= 4 AND oversight <= 2", "level": "critical", "label": "Needs Review" }
-  ],
-  "ui": { /* theme, notices, footer */ }
+  "categories": { /* UI groupings with order */ },
+  "fields": { /* field definitions with type, label, values */ },
+  "ui": { /* title, tagline, badge, notices, footer */ }
 }
 ```
-
-**Rules use boolean expressions** evaluated by a safe parser (no `eval()`):
-
-- Comparisons: `>=`, `<=`, `>`, `<`, `==`, `!=`
-- Logic: `AND`, `OR`, `NOT`
-- Parentheses for grouping
 
 ---
 

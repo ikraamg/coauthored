@@ -10,7 +10,16 @@ Coauthored is a config-driven, self-describing format for documenting AI involve
 
 ```
 coauthored/
-├── index.html        # HTML 1.0 style UI (fetches config at runtime)
+├── index.html        # Entry point (loads modules)
+├── styles.css        # CSS with custom properties & theming
+├── js/
+│   ├── app.js        # Main orchestration & routing
+│   ├── form.js       # Wizard form rendering & data collection
+│   ├── viewer.js     # Statement viewer
+│   ├── stepper.js    # Multi-step wizard navigation
+│   ├── theme.js      # Dark/light theme toggle
+│   ├── toast.js      # Toast notifications
+│   └── draft.js      # localStorage draft persistence
 ├── core.js           # Universal encoder/decoder
 ├── config.js         # Config loader + validation
 ├── coauthored.json   # Single source of truth config
@@ -22,7 +31,7 @@ coauthored/
 - `coauthored.json` — Defines everything: fields, categories, UI text
 - `core.js` — Encoding format only, config-agnostic
 - `config.js` — Loads config, validates structure
-- `index.html` — Minimal HTML 1.0 style UI, renders from config
+- `js/*.js` — Modular UI components, all config-driven
 
 Forks only need to edit `coauthored.json`. No code changes required.
 
@@ -42,8 +51,15 @@ node cli.js decode 'v:1;o:co;scope:pr;ai:code'
 - ES Modules throughout (`import`/`export`)
 - JSDoc comments on public functions
 - No framework dependencies — vanilla JS only
-- HTML 1.0 style: native form controls, semantic HTML, minimal CSS
+- CSS custom properties for theming (`--color-*`, `--space-*`)
 - No semicolons (standard JS style)
+
+## UI Features
+
+- **Theme toggle**: Dark/light mode with system preference detection
+- **Draft persistence**: Form data saved to localStorage
+- **Multi-step wizard**: Keyboard navigation (←→, 1-6, ⌘+Enter)
+- **Toast notifications**: Copy feedback with auto-dismiss
 
 ## Config Structure (coauthored.json)
 

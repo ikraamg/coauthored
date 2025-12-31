@@ -1,0 +1,71 @@
+/**
+ * Draft Module
+ * Persists form data to localStorage for session recovery
+ */
+
+const STORAGE_KEY = 'coauthored-draft'
+
+/**
+ * Save draft to localStorage
+ * @param {Object} formData - Form data from collectFormData()
+ * @param {number} currentStep - Current step index (0-5)
+ * @param {string} schemaVersion - Config schema version for migration detection
+ */
+export function saveDraft(formData, currentStep, schemaVersion) {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion,
+        savedAt: new Date().toISOString(),
+        currentStep,
+        formData,
+      })
+    )
+  } catch {
+    // localStorage unavailable (private browsing, quota exceeded)
+    // Fail silently - drafts are a convenience, not critical
+  }
+}
+
+/**
+ * Load draft from localStorage
+ * @param {string} currentSchemaVersion - Current config schema version
+ * @returns {{schemaVersion: string, savedAt: string, currentStep: number, formData: Object}|null}
+ */
+export function loadDraft(currentSchemaVersion) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+
+    const draft = JSON.parse(raw)
+
+    // Validate structure
+    if (!draft || typeof draft !== 'object') return null
+    if (!draft.formData || typeof draft.formData !== 'object') return null
+    if (typeof draft.currentStep !== 'number') return null
+
+    // Schema version mismatch - discard draft
+    if (draft.schemaVersion !== currentSchemaVersion) {
+      clearDraft()
+      return null
+    }
+
+    return draft
+  } catch {
+    // JSON parse failed or other error - clear corrupted data
+    clearDraft()
+    return null
+  }
+}
+
+/**
+ * Clear draft from localStorage
+ */
+export function clearDraft() {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Fail silently
+  }
+}
