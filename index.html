@@ -26,8 +26,12 @@
     button.primary { background: #3b82f6; color: white; border-color: #3b82f6; }
     .viewer-field { margin: 0.5rem 0; }
     .viewer-field strong { display: inline-block; min-width: 140px; }
-    .badge-preview { margin: 1rem 0; }
-    .badge-preview img { max-height: 20px; }
+    .badge-section { margin: 1rem 0; }
+    .badge-section img { max-height: 20px; margin-bottom: 0.5rem; }
+    .copy-row { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
+    .copy-row input { flex: 1; font-family: monospace; font-size: 0.75rem; padding: 0.5rem; border: 1px solid #ccc; }
+    .copy-row button { padding: 0.5rem 1rem; white-space: nowrap; }
+    .section-label { font-size: 0.75rem; color: #666; margin-top: 1rem; margin-bottom: 0.25rem; }
     footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; color: #666; font-size: 0.875rem; }
     .hidden { display: none; }
   </style>
@@ -102,12 +106,26 @@
       html += `
         </form>
         <div class="assessment" id="assessment" style="background:#6b7280">Documented</div>
-        <div class="output" id="output"></div>
-        <div class="badge-preview" id="badge"></div>
-        <div class="actions">
-          <button class="primary" onclick="copyOutput()">Copy Statement</button>
-          <button onclick="copyMarkdown()">Copy Markdown</button>
+
+        <div class="section-label">Statement</div>
+        <div class="copy-row">
+          <input type="text" id="output" readonly>
+          <button onclick="copyOutput()">Copy</button>
         </div>
+
+        <div class="section-label">URL</div>
+        <div class="copy-row">
+          <input type="text" id="url-output" readonly>
+          <button onclick="copyUrl()">Copy</button>
+        </div>
+
+        <div class="section-label">Badge Markdown</div>
+        <div class="copy-row">
+          <input type="text" id="markdown-output" readonly>
+          <button onclick="copyMarkdown()">Copy</button>
+        </div>
+
+        <div class="badge-section" id="badge"></div>
       `;
 
       document.getElementById('app').innerHTML = html;
@@ -195,23 +213,37 @@
       current[parts[parts.length - 1]] = value;
     }
 
+    function getBaseUrl() {
+      return window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    }
+
     function updatePreview() {
       const data = collectFormData();
       const result = assess(data, config);
       const encoded = encode(data, config);
+      const baseUrl = getBaseUrl();
+      const fullUrl = `${baseUrl}/#${encoded}`;
+      const markdown = badgeMarkdown(encoded, result.label, result.color, baseUrl);
 
       document.getElementById('assessment').style.background = `#${result.color}`;
       document.getElementById('assessment').textContent = result.label;
-      document.getElementById('output').textContent = encoded;
-      document.getElementById('badge').innerHTML = `<img src="${badgeUrl(result.label, result.color)}" alt="Badge">`;
+      document.getElementById('output').value = encoded;
+      document.getElementById('url-output').value = fullUrl;
+      document.getElementById('markdown-output').value = markdown;
+      document.getElementById('badge').innerHTML = `<img src="${badgeUrl(result.label, result.color)}" alt="Badge Preview">`;
 
       window._currentEncoded = encoded;
+      window._currentUrl = fullUrl;
+      window._currentMarkdown = markdown;
       window._currentResult = result;
     }
 
     function renderViewer(data, encoded) {
       const result = assess(data, config);
       const notice = config.ui?.notices?.viewer || {};
+      const baseUrl = getBaseUrl();
+      const fullUrl = `${baseUrl}/#${encoded}`;
+      const markdown = badgeMarkdown(encoded, result.label, result.color, baseUrl);
 
       let html = `
         <div class="notice">
@@ -236,15 +268,36 @@
       }
 
       html += `
-        <div class="output">${encoded}</div>
-        <div class="badge-preview"><img src="${badgeUrl(result.label, result.color)}" alt="Badge"></div>
+        <div class="section-label">Statement</div>
+        <div class="copy-row">
+          <input type="text" value="${encoded}" readonly>
+          <button onclick="copyText('${encoded}')">Copy</button>
+        </div>
+
+        <div class="section-label">URL</div>
+        <div class="copy-row">
+          <input type="text" value="${fullUrl}" readonly>
+          <button onclick="copyText('${fullUrl}')">Copy</button>
+        </div>
+
+        <div class="section-label">Badge Markdown</div>
+        <div class="copy-row">
+          <input type="text" value="${escapeAttr(markdown)}" readonly>
+          <button onclick="copyText('${escapeAttr(markdown)}')">Copy</button>
+        </div>
+
+        <div class="badge-section"><img src="${badgeUrl(result.label, result.color)}" alt="Badge Preview"></div>
+
         <div class="actions">
-          <button onclick="location.hash=''">Create New</button>
-          <button onclick="copyText('${encoded}')">Copy Statement</button>
+          <button class="primary" onclick="location.hash=''">Create New Statement</button>
         </div>
       `;
 
       document.getElementById('app').innerHTML = html;
+    }
+
+    function escapeAttr(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
     function getNestedValue(obj, path) {
@@ -255,9 +308,12 @@
       navigator.clipboard.writeText(window._currentEncoded || '');
     };
 
+    window.copyUrl = () => {
+      navigator.clipboard.writeText(window._currentUrl || '');
+    };
+
     window.copyMarkdown = () => {
-      const md = badgeMarkdown(window._currentEncoded, window._currentResult?.label || 'Documented', window._currentResult?.color || '6b7280', config.meta?.url);
-      navigator.clipboard.writeText(md);
+      navigator.clipboard.writeText(window._currentMarkdown || '');
     };
 
     window.copyText = (text) => {
