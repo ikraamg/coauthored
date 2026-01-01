@@ -46,20 +46,22 @@ export function renderViewer(data, encoded, config, onEdit, onNew) {
 
     let displayValue
     if (Array.isArray(value)) {
-      // Multiple values - show as list with descriptions
+      // Multiple values - show as list with descriptions below
       const items = value.map((v) => {
         const label = getLabel(key, v, config)
         const desc = getValueDesc(key, v, config)
         return desc
-          ? `<span class="value-item"><strong>${label}</strong> — ${desc}</span>`
-          : `<span class="value-item"><strong>${label}</strong></span>`
+          ? `<span class="value-item">${label}<span class="value-desc">${desc}</span></span>`
+          : `<span class="value-item">${label}</span>`
       })
-      displayValue = items.join('<br>')
+      displayValue = items.join('')
     } else {
-      // Single value
+      // Single value with description below
       const label = getLabel(key, value, config)
       const desc = getValueDesc(key, value, config)
-      displayValue = desc ? `<strong>${label}</strong> — ${desc}` : label
+      displayValue = desc
+        ? `${label}<span class="value-desc">${desc}</span>`
+        : label
     }
 
     // Show field label with description
