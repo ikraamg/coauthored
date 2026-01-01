@@ -143,33 +143,41 @@ export function parseUrl(urlOrHash) {
 
 /**
  * Build URL for a statement
+ * @param {string} encoded - Encoded statement
+ * @param {string} baseUrl - Base URL for the statement
  */
-export function buildUrl(encoded, baseUrl = 'https://coauthored.dev') {
+export function buildUrl(encoded, baseUrl) {
   return `${baseUrl}/#${encoded}`
 }
 
 /**
- * Generate shields.io badge URL
+ * Generate badge URL using configurable service
  * @param {string} text - Badge text (e.g., "Coauthored with AI")
  * @param {string} color - Hex color without #
+ * @param {string} serviceUrl - Badge service URL pattern with {text}, {color}, {style} placeholders
  * @param {string} style - Badge style (flat, flat-square, etc.)
  */
-export function badgeUrl(text, color, style = 'flat') {
-  // shields.io format: text with spaces → underscores, dashes → double dashes
+export function badgeUrl(text, color, serviceUrl, style = 'flat') {
   const encodedText = encodeURIComponent(
     text.replace(/-/g, '--').replace(/ /g, '_')
   )
-  return `https://img.shields.io/badge/${encodedText}-↗-${color}?style=${style}`
+  return serviceUrl
+    .replace('{text}', encodedText)
+    .replace('{color}', color)
+    .replace('{style}', style)
 }
 
 /**
  * Generate markdown for badge with link
+ * @param {string} encoded - Encoded statement
+ * @param {string} text - Badge text
+ * @param {string} color - Badge color
+ * @param {string} baseUrl - Base URL for the statement link
+ * @param {string} serviceUrl - Badge service URL pattern
  */
-export function badgeMarkdown(
-  encoded,
-  text,
-  color,
-  baseUrl = 'https://coauthored.dev'
-) {
-  return `[![${text}](${badgeUrl(text, color)})](${buildUrl(encoded, baseUrl)})`
+export function badgeMarkdown(encoded, text, color, baseUrl, serviceUrl) {
+  return `[![${text}](${badgeUrl(text, color, serviceUrl)})](${buildUrl(
+    encoded,
+    baseUrl
+  )})`
 }

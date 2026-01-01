@@ -3,13 +3,26 @@
  * Dark/light mode with system preference detection
  */
 
-const STORAGE_KEY = 'coauthored-theme'
+import { getStorageKey } from '../config.js'
+
+/** @type {Object|null} */
+let currentConfig = null
+
+/**
+ * Get the storage key for theme
+ * @returns {string}
+ */
+function getThemeKey() {
+  return getStorageKey(currentConfig, 'theme')
+}
 
 /**
  * Initialize theme from saved preference or system default
+ * @param {Object} config - App configuration
  */
-export function initTheme() {
-  const saved = localStorage.getItem(STORAGE_KEY)
+export function initTheme(config) {
+  currentConfig = config
+  const saved = localStorage.getItem(getThemeKey())
 
   if (saved) {
     document.documentElement.dataset.theme = saved
@@ -30,7 +43,7 @@ export function initTheme() {
   window
     .matchMedia('(prefers-color-scheme: dark)')
     .addEventListener('change', (e) => {
-      if (!localStorage.getItem(STORAGE_KEY)) {
+      if (!localStorage.getItem(getThemeKey())) {
         document.documentElement.dataset.theme = e.matches ? 'dark' : 'light'
       }
     })
@@ -43,13 +56,5 @@ export function toggleTheme() {
   const current = document.documentElement.dataset.theme
   const next = current === 'dark' ? 'light' : 'dark'
   document.documentElement.dataset.theme = next
-  localStorage.setItem(STORAGE_KEY, next)
-}
-
-/**
- * Get current theme
- * @returns {string} 'dark' or 'light'
- */
-export function getTheme() {
-  return document.documentElement.dataset.theme || 'dark'
+  localStorage.setItem(getThemeKey(), next)
 }

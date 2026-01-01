@@ -3,12 +3,12 @@
  * Main orchestration module
  */
 
-import { loadConfig } from '../config.js'
+import { loadConfig, getOrderedCategoryKeys } from '../config.js'
 import { decode, parseUrl } from '../core.js'
 import { initTheme, toggleTheme } from './theme.js'
 import { renderWizard, getStepper } from './form.js'
 import { renderViewer, editStatement } from './viewer.js'
-import { clearDraft } from './draft.js'
+import { initDraft, clearDraft } from './draft.js'
 
 /** @type {Object|null} */
 let config = null
@@ -19,7 +19,8 @@ let config = null
 async function init() {
   try {
     config = await loadConfig()
-    initTheme()
+    initTheme(config)
+    initDraft(config)
     initKeyboardShortcuts()
 
     const footerText = document.getElementById('footer-text')
@@ -131,10 +132,12 @@ function initKeyboardShortcuts() {
       stepper.prev()
     }
 
-    // Number keys for step jump
-    if (/^[1-6]$/.test(e.key)) {
+    // Number keys for step jump (dynamic based on category count)
+    const stepCount = getOrderedCategoryKeys(config).length
+    const keyNum = parseInt(e.key, 10)
+    if (keyNum >= 1 && keyNum <= stepCount) {
       e.preventDefault()
-      stepper.goToStep(parseInt(e.key, 10) - 1)
+      stepper.goToStep(keyNum - 1)
     }
 
     // Escape to reset

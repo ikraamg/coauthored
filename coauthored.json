@@ -2,10 +2,9 @@
   "meta": {
     "formatVersion": 1,
     "schemaVersion": "2.0.0",
-    "origin": "co",
+    "origin": "coauthored.dev",
     "name": "Coauthored",
-    "description": "A simple way to share how AI helped build your code",
-    "url": "https://coauthored.dev"
+    "description": "A simple way to share how AI helped build your code"
   },
 
   "categories": {
@@ -234,7 +233,20 @@
     "tagline": "Share how you and AI built this together",
     "badge": {
       "text": "AI Coauthored",
-      "color": "3b82f6"
+      "color": "58a6ff",
+      "service": "https://img.shields.io/badge/{text}-↗_see_details-{color}?style={style}"
+    },
+    "labels": {
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "View",
+      "edit": "Edit",
+      "createNew": "Create New",
+      "livePreview": "Preview",
+      "share": "Share",
+      "url": "URL",
+      "markdown": "Markdown",
+      "copy": "Copy"
     },
     "notices": {
       "wizard": {

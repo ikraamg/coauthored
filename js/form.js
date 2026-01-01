@@ -3,11 +3,20 @@
  * Handles form rendering, data collection, and population
  */
 
-import { getFieldsByCategory, getBadge, getNestedValue } from '../config.js'
+import {
+  getFieldsByCategory,
+  getBadge,
+  getNestedValue,
+  getOrderedCategoryKeys,
+  getBaseUrl,
+  getBadgeServiceUrl,
+  getLabels,
+} from '../config.js'
 import { encode, badgeUrl, badgeMarkdown } from '../core.js'
 import { Stepper, renderStepNav } from './stepper.js'
 import { copyField } from './toast.js'
 import { saveDraft, loadDraft } from './draft.js'
+import { renderOutputPanel } from './output.js'
 
 /** @type {Stepper|null} */
 let stepper = null
@@ -19,17 +28,7 @@ let formData = {}
 let currentConfig = null
 
 /** @type {string[]} */
-const steps = ['basics', 'ai', 'oversight', 'context', 'validation', 'meta']
-
-/**
- * Get base URL for building statement URLs
- * @returns {string}
- */
-function getBaseUrl() {
-  return (
-    window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '')
-  )
-}
+let steps = []
 
 /**
  * Set nested value in object using dot notation path
@@ -198,6 +197,7 @@ function updatePreview() {
   const badge = getBadge(currentConfig)
   const encoded = encode(data, currentConfig)
   const baseUrl = getBaseUrl()
+  const badgeService = getBadgeServiceUrl(currentConfig)
 
   const stmtEl = document.getElementById('output-statement')
   const urlEl = document.getElementById('output-url')
@@ -207,11 +207,18 @@ function updatePreview() {
   if (stmtEl) stmtEl.value = encoded
   if (urlEl) urlEl.value = `${baseUrl}/#${encoded}`
   if (mdEl)
-    mdEl.value = badgeMarkdown(encoded, badge.text, badge.color, baseUrl)
+    mdEl.value = badgeMarkdown(
+      encoded,
+      badge.text,
+      badge.color,
+      baseUrl,
+      badgeService
+    )
   if (badgeEl)
     badgeEl.innerHTML = `<img src="${badgeUrl(
       badge.text,
-      badge.color
+      badge.color,
+      badgeService
     )}" alt="Badge">`
 
   // Store for submission
@@ -255,6 +262,7 @@ function bindRadioKeyboard() {
  */
 export function renderWizard(config, onSubmit) {
   currentConfig = config
+  steps = getOrderedCategoryKeys(config)
   const notice = config.ui?.notices?.wizard || {}
   const grouped = getFieldsByCategory(config)
   const isEditing = history.state?.editing && window._editingData
@@ -262,7 +270,7 @@ export function renderWizard(config, onSubmit) {
   formData = { created: new Date().toISOString().split('T')[0] }
 
   // Create stepper instance
-  stepper = new Stepper(steps, config.categories)
+  stepper = new Stepper(steps, config)
 
   let html = stepper.renderTrack()
 
@@ -300,40 +308,12 @@ export function renderWizard(config, onSubmit) {
     </div>
   `
 
-  html += renderStepNav()
-
-  html += `
-    <section class="preview-panel" aria-label="Preview">
-      <div class="preview-header">
-        <span class="preview-title">Live Preview</span>
-        <div class="preview-badge" id="badge-preview"></div>
-      </div>
-
-      <div class="output-field">
-        <span class="output-label">Statement</span>
-        <div class="output-row">
-          <input type="text" class="output-input" id="output-statement" readonly>
-          <button type="button" class="btn-copy" data-copy="output-statement">Copy</button>
-        </div>
-      </div>
-
-      <div class="output-field">
-        <span class="output-label">URL</span>
-        <div class="output-row">
-          <input type="text" class="output-input" id="output-url" readonly>
-          <button type="button" class="btn-copy" data-copy="output-url">Copy</button>
-        </div>
-      </div>
-
-      <div class="output-field">
-        <span class="output-label">Markdown Badge</span>
-        <div class="output-row">
-          <input type="text" class="output-input" id="output-markdown" readonly>
-          <button type="button" class="btn-copy" data-copy="output-markdown">Copy</button>
-        </div>
-      </div>
-    </section>
-  `
+  const labels = getLabels(config)
+  html += renderStepNav(config)
+  html += renderOutputPanel(config, {
+    title: labels.livePreview,
+    badgeHtml: '<div id="badge-preview"></div>',
+  })
 
   document.getElementById('app').innerHTML = html
 

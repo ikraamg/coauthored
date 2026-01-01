@@ -77,11 +77,7 @@ export function getFieldsByCategory(config) {
   }
 
   const sorted = {}
-  const catOrder = Object.entries(config.categories)
-    .sort((a, b) => a[1].order - b[1].order)
-    .map(([key]) => key)
-
-  for (const cat of catOrder) {
+  for (const cat of getOrderedCategoryKeys(config)) {
     if (grouped[cat]) sorted[cat] = grouped[cat]
   }
 
@@ -112,8 +108,61 @@ export function getLabel(fieldKey, value, config) {
 /**
  * Get badge config
  * @param {Object} config - Loaded config
- * @returns {Object} { text, color }
+ * @returns {Object} { text, color, service }
  */
 export function getBadge(config) {
-  return config.ui?.badge || { text: 'Coauthored with AI', color: '3b82f6' }
+  return config.ui.badge
+}
+
+/**
+ * Get UI labels from config
+ * @param {Object} config - Loaded config
+ * @returns {Object} Labels object
+ */
+export function getLabels(config) {
+  return config.ui.labels
+}
+
+/**
+ * Get category keys sorted by their order property
+ * @param {Object} config - Loaded config
+ * @returns {string[]} Category keys in order
+ */
+export function getOrderedCategoryKeys(config) {
+  return Object.entries(config.categories)
+    .sort((a, b) => a[1].order - b[1].order)
+    .map(([key]) => key)
+}
+
+/**
+ * Get base URL from current location
+ * @returns {string} Base URL
+ */
+export function getBaseUrl() {
+  return (
+    window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '')
+  )
+}
+
+/**
+ * Get storage key with app-specific prefix
+ * @param {Object} config - Loaded config
+ * @param {string} suffix - Key suffix (e.g., 'draft', 'theme')
+ * @returns {string} Full storage key
+ */
+export function getStorageKey(config, suffix) {
+  const prefix = config?.meta?.name?.toLowerCase() || 'coauthored'
+  return `${prefix}-${suffix}`
+}
+
+/**
+ * Get badge service URL pattern
+ * @param {Object} config - Loaded config
+ * @returns {string} Badge service URL pattern with {text}, {color}, {style} placeholders
+ */
+export function getBadgeServiceUrl(config) {
+  return (
+    config?.ui?.badge?.service ||
+    'https://img.shields.io/badge/{text}-↗_see_details-{color}?style={style}'
+  )
 }

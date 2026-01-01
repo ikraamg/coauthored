@@ -3,18 +3,37 @@
  * Persists form data to localStorage for session recovery
  */
 
-const STORAGE_KEY = 'coauthored-draft'
+import { getStorageKey } from '../config.js'
+
+/** @type {Object|null} */
+let currentConfig = null
+
+/**
+ * Initialize draft module with config
+ * @param {Object} config - App configuration
+ */
+export function initDraft(config) {
+  currentConfig = config
+}
+
+/**
+ * Get the storage key for drafts
+ * @returns {string}
+ */
+function getDraftKey() {
+  return getStorageKey(currentConfig, 'draft')
+}
 
 /**
  * Save draft to localStorage
  * @param {Object} formData - Form data from collectFormData()
- * @param {number} currentStep - Current step index (0-5)
+ * @param {number} currentStep - Current step index
  * @param {string} schemaVersion - Config schema version for migration detection
  */
 export function saveDraft(formData, currentStep, schemaVersion) {
   try {
     localStorage.setItem(
-      STORAGE_KEY,
+      getDraftKey(),
       JSON.stringify({
         schemaVersion,
         savedAt: new Date().toISOString(),
@@ -35,7 +54,7 @@ export function saveDraft(formData, currentStep, schemaVersion) {
  */
 export function loadDraft(currentSchemaVersion) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
+    const raw = localStorage.getItem(getDraftKey())
     if (!raw) return null
 
     const draft = JSON.parse(raw)
@@ -64,7 +83,7 @@ export function loadDraft(currentSchemaVersion) {
  */
 export function clearDraft() {
   try {
-    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(getDraftKey())
   } catch {
     // Fail silently
   }

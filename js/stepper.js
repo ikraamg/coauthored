@@ -3,6 +3,8 @@
  * Multi-step wizard navigation with animations
  */
 
+import { getLabels } from '../config.js'
+
 /**
  * Stepper class for managing step navigation
  */
@@ -10,12 +12,14 @@ export class Stepper {
   /**
    * Create a stepper instance
    * @param {string[]} steps - Array of step keys
-   * @param {Object} categories - Category config with labels
+   * @param {Object} config - Full app config
    * @param {Function} onStepChange - Callback when step changes
    */
-  constructor(steps, categories, onStepChange = null) {
+  constructor(steps, config, onStepChange = null) {
     this.steps = steps
-    this.categories = categories
+    this.config = config
+    this.categories = config.categories
+    this.labels = getLabels(config)
     this.currentStep = 0
     this.onStepChange = onStepChange
   }
@@ -133,13 +137,13 @@ export class Stepper {
     if (nextBtn) {
       if (this.isLastStep()) {
         nextBtn.innerHTML = `
-          View Statement
+          ${this.labels.submit}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         `
         nextBtn.setAttribute('data-action', 'view')
       } else {
         nextBtn.innerHTML = `
-          Next
+          ${this.labels.next}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         `
         nextBtn.removeAttribute('data-action')
@@ -212,17 +216,19 @@ export class Stepper {
 
 /**
  * Create step navigation HTML
+ * @param {Object} config - App configuration
  * @returns {string} HTML string for navigation buttons
  */
-export function renderStepNav() {
+export function renderStepNav(config) {
+  const labels = getLabels(config)
   return `
     <nav class="step-nav" aria-label="Step navigation">
       <button type="button" class="btn btn-secondary" id="btn-prev" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Previous
+        ${labels.previous}
       </button>
       <button type="button" class="btn btn-primary" id="btn-next">
-        Next
+        ${labels.next}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </nav>
