@@ -7,6 +7,7 @@ import {
   getBadge,
   getNestedValue,
   getLabel,
+  getValueDesc,
   getBaseUrl,
   getBadgeServiceUrl,
   getLabels,
@@ -45,12 +46,28 @@ export function renderViewer(data, encoded, config, onEdit, onNew) {
 
     let displayValue
     if (Array.isArray(value)) {
-      displayValue = value.map((v) => getLabel(key, v, config)).join(', ')
+      // Multiple values - show as list with descriptions
+      const items = value.map((v) => {
+        const label = getLabel(key, v, config)
+        const desc = getValueDesc(key, v, config)
+        return desc
+          ? `<span class="value-item"><strong>${label}</strong> — ${desc}</span>`
+          : `<span class="value-item"><strong>${label}</strong></span>`
+      })
+      displayValue = items.join('<br>')
     } else {
-      displayValue = getLabel(key, value, config)
+      // Single value
+      const label = getLabel(key, value, config)
+      const desc = getValueDesc(key, value, config)
+      displayValue = desc ? `<strong>${label}</strong> — ${desc}` : label
     }
 
-    rows += `<tr><th>${field.label}</th><td>${displayValue}</td></tr>`
+    // Show field label with description
+    const fieldHeader = field.description
+      ? `${field.label}<span class="field-desc">${field.description}</span>`
+      : field.label
+
+    rows += `<tr><th>${fieldHeader}</th><td>${displayValue}</td></tr>`
   }
 
   const badgeImgHtml = `<img src="${badgeUrl(

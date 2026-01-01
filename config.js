@@ -106,6 +106,21 @@ export function getLabel(fieldKey, value, config) {
 }
 
 /**
+ * Get value description from config
+ * @param {string} fieldKey - Field key (e.g., 'intent')
+ * @param {string} value - Value key (e.g., 'prod')
+ * @param {Object} config - Loaded config
+ * @returns {string} Value description or empty string
+ */
+export function getValueDesc(fieldKey, value, config) {
+  const field = config.fields[fieldKey]
+  if (!field?.values) return ''
+
+  const found = field.values.find((v) => v.value === value)
+  return found?.desc || ''
+}
+
+/**
  * Get badge config
  * @param {Object} config - Loaded config
  * @returns {Object} { text, color, service }
