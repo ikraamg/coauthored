@@ -1,4 +1,4 @@
-[![AI Coauthored](https://img.shields.io/badge/AI_Coauthored-↗-3b82f6?style=flat)](https://coauthored.dev/#v:1;o:co;created:2025-12-31;scope:project;intent:explore,prod;traj:iter;ai:doc,code,arch;tool:claude;review:func;env:cust;data:none;valid:deployed;notes:~V29ya2luZyBjbG9zZWx5IHdpdGggQUkgdG8gZ3VpZGUgaXQuIENvZGUgZnVuY3Rpb25hbGl0eSB0ZXN0ZWQgYW5kIGxpZ2h0IGNvZGUgcmV2aWV3)
+[![AI Coauthored](https://img.shields.io/badge/AI_Coauthored-↗_see_details-58a6ff?style=flat)](https://coauthored.dev/#v:1;o:~Y29hdXRob3JlZC5kZXY;created:2026-01-01;scope:project;intent:prod;traj:stable;ai:code,debug,refactor,doc,arch;tools:~Q2xhdWRlIENvZGU;review:spot,ran,iter;strengths:backend,domain;confident:code;env:external;data:low;valid:e2e;focus:arch,code,security,edge,perf;notes:~VGhlIGZvY3VzIGhlcmUgd2FzIHRvIGhhdmUgYSBwcm9kdWN0aW9uIHJlYWR5IGFwcHJvYWNoLiBBSSB3YXMgcmVsaWVkIG9uIHNpZ25pZmljYW50bHkgYnV0IHRob3JvdWdobHkgc3RlZXJlZC4gQWN0dWFsIGNvZGUgcXVhbGl0eSBhbmQgcGF0dGVybnMgbmVlZCB0byBiZSBhc3Nlc3NlZCBhbmQgaW1wcm92ZWQgYXMgdGhpcyB3YXMgbm90IGRlZXBseSBmb2N1c2VkIG9uLg)
 
 # Coauthored
 
