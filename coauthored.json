@@ -9,34 +9,29 @@
 
   "categories": {
     "basics": {
-      "label": "The code",
-      "description": "",
+      "label": "The Code",
+      "description": "What is being documented?",
       "order": 1
     },
-    "ai": {
-      "label": "AI involvement",
-      "description": "",
+    "collab": {
+      "label": "Collaboration",
+      "description": "How was this built?",
       "order": 2
     },
-    "oversight": {
-      "label": "Human review",
-      "description": "",
+    "author": {
+      "label": "Author Assessment",
+      "description": "Your expertise and confidence",
       "order": 3
     },
     "context": {
       "label": "Context",
-      "description": "",
+      "description": "Environment and validation",
       "order": 4
     },
-    "validation": {
-      "label": "Validation",
-      "description": "",
+    "guidance": {
+      "label": "Reviewer Guidance",
+      "description": "What should reviewers do?",
       "order": 5
-    },
-    "meta": {
-      "label": "Other",
-      "description": "",
-      "order": 6
     }
   },
 
@@ -64,30 +59,28 @@
 
     "intent": {
       "type": "flags",
-      "label": "Code type",
-      "description": "Select all that apply",
+      "label": "Purpose",
+      "description": "What is this code for?",
       "category": "basics",
       "values": [
-        { "value": "explore", "label": "Exploratory", "desc": "Testing ideas" },
-        {
-          "value": "proto",
-          "label": "Prototype",
-          "desc": "Not production-ready"
-        },
-        { "value": "prod", "label": "Production", "desc": "Live use" },
-        { "value": "learn", "label": "Learning", "desc": "Educational" }
+        { "value": "spike", "label": "Spike", "desc": "Testing an idea" },
+        { "value": "proto", "label": "Prototype", "desc": "Not production-ready" },
+        { "value": "prod", "label": "Production", "desc": "Live/shipping code" },
+        { "value": "internal", "label": "Internal tool", "desc": "Team or personal use" },
+        { "value": "learn", "label": "Learning", "desc": "Educational exercise" }
       ]
     },
 
     "traj": {
-      "type": "flags",
-      "label": "Lifecycle",
-      "description": "Where is this headed?",
+      "type": "enum",
+      "label": "Lifespan",
+      "description": "How long will this code live?",
       "category": "basics",
       "values": [
-        { "value": "throw", "label": "Throwaway", "desc": "Will be discarded" },
-        { "value": "iter", "label": "Evolving", "desc": "May grow" },
-        { "value": "maint", "label": "Long-term", "desc": "Needs maintenance" }
+        { "value": "throw", "label": "Throwaway", "desc": "One-time use, will discard" },
+        { "value": "short", "label": "Short-lived", "desc": "Temporary solution" },
+        { "value": "evolve", "label": "Evolving", "desc": "Active development" },
+        { "value": "stable", "label": "Long-term", "desc": "Stable, needs maintenance" }
       ]
     },
 
@@ -95,70 +88,79 @@
       "type": "flags",
       "label": "AI contributions",
       "description": "What did AI help with?",
-      "category": "ai",
+      "category": "collab",
       "values": [
-        {
-          "value": "doc",
-          "label": "Documentation",
-          "desc": "READMEs, comments"
-        },
-        { "value": "code", "label": "Code generation", "desc": "Wrote code" },
-        {
-          "value": "review",
-          "label": "Code review",
-          "desc": "Reviewed human code"
-        },
-        {
-          "value": "arch",
-          "label": "Architecture",
-          "desc": "Design decisions"
-        },
-        { "value": "test", "label": "Testing", "desc": "Tests or strategy" }
+        { "value": "code", "label": "Code generation", "desc": "Wrote new code" },
+        { "value": "debug", "label": "Debugging", "desc": "Found or fixed issues" },
+        { "value": "refactor", "label": "Refactoring", "desc": "Restructured code" },
+        { "value": "test", "label": "Testing", "desc": "Tests or test strategy" },
+        { "value": "doc", "label": "Documentation", "desc": "Comments, READMEs" },
+        { "value": "arch", "label": "Architecture", "desc": "Design decisions" }
       ]
     },
 
-    "tool": {
-      "type": "flags",
-      "label": "Tools used",
-      "description": "",
-      "category": "ai",
-      "values": [
-        { "value": "claude", "label": "Claude", "desc": "" },
-        { "value": "copilot", "label": "GitHub Copilot", "desc": "" },
-        { "value": "gpt", "label": "ChatGPT", "desc": "" },
-        { "value": "cursor", "label": "Cursor", "desc": "" },
-        { "value": "gemini", "label": "Gemini", "desc": "" }
-      ]
-    },
-
-    "tool.other": {
+    "tools": {
       "type": "text",
-      "label": "Other tools",
+      "label": "AI tools used",
       "description": "",
-      "category": "ai",
-      "placeholder": "Tools not listed above"
+      "category": "collab",
+      "placeholder": "Claude, Cursor, Copilot, etc."
     },
 
     "review": {
-      "type": "enum",
-      "label": "Review depth",
-      "description": "How closely was AI output reviewed?",
-      "category": "oversight",
+      "type": "flags",
+      "label": "Human oversight",
+      "description": "How did you review AI output?",
+      "category": "collab",
       "values": [
-        { "value": "line", "label": "Line-by-line", "desc": "Read all code" },
-        {
-          "value": "func",
-          "label": "Thorough testing",
-          "desc": "Verified behavior"
-        },
-        { "value": "spot", "label": "Spot checked", "desc": "Key sections" },
-        {
-          "value": "tests",
-          "label": "Tests only",
-          "desc": "Trusted passing tests"
-        },
-        { "value": "min", "label": "Minimal", "desc": "Quick glance" },
-        { "value": "none", "label": "None", "desc": "No review" }
+        { "value": "spot", "label": "Light review", "desc": "Spot-checked key sections" },
+        { "value": "full", "label": "Thorough review", "desc": "Read all the code" },
+        { "value": "ran", "label": "Manual testing", "desc": "Ran and verified behavior" },
+        { "value": "tests", "label": "Trusted tests", "desc": "Human-verified test suite" },
+        { "value": "aitests", "label": "AI tests", "desc": "Tests also AI-generated" },
+        { "value": "iter", "label": "Iterated", "desc": "Multiple rounds with AI" }
+      ]
+    },
+
+    "strengths": {
+      "type": "flags",
+      "label": "Your strengths",
+      "description": "Where is your expertise?",
+      "category": "author",
+      "values": [
+        { "value": "arch", "label": "Architecture", "desc": "System design" },
+        { "value": "backend", "label": "Backend", "desc": "Server-side code" },
+        { "value": "frontend", "label": "Frontend", "desc": "UI / client-side" },
+        { "value": "security", "label": "Security", "desc": "Security practices" },
+        { "value": "domain", "label": "Domain", "desc": "Business / problem domain" }
+      ]
+    },
+
+    "confident": {
+      "type": "flags",
+      "label": "Confident areas",
+      "description": "Where are you confident in this code?",
+      "category": "author",
+      "values": [
+        { "value": "arch", "label": "Architecture", "desc": "Design is sound" },
+        { "value": "code", "label": "Code quality", "desc": "Implementation is solid" },
+        { "value": "security", "label": "Security", "desc": "Security considered" },
+        { "value": "edge", "label": "Edge cases", "desc": "Edge cases handled" },
+        { "value": "perf", "label": "Performance", "desc": "Efficient enough" }
+      ]
+    },
+
+    "limits": {
+      "type": "flags",
+      "label": "Known limitations",
+      "description": "What should readers be aware of?",
+      "category": "author",
+      "values": [
+        { "value": "bugs", "label": "May have bugs", "desc": "Not fully debugged" },
+        { "value": "perf", "label": "Not optimized", "desc": "Performance concerns" },
+        { "value": "edge", "label": "Edge cases", "desc": "Some not handled" },
+        { "value": "debt", "label": "Tech debt", "desc": "Needs cleanup later" },
+        { "value": "partial", "label": "Incomplete", "desc": "Work in progress" }
       ]
     },
 
@@ -168,45 +170,52 @@
       "description": "Where does this run?",
       "category": "context",
       "values": [
-        { "value": "local", "label": "Local", "desc": "Single machine" },
-        { "value": "int", "label": "Internal", "desc": "Team/company only" },
-        {
-          "value": "cust",
-          "label": "Customer-facing",
-          "desc": "End users see it"
-        },
-        { "value": "pub", "label": "Public infra", "desc": "Critical systems" }
+        { "value": "dev", "label": "Development", "desc": "Local or dev environment" },
+        { "value": "stage", "label": "Staging", "desc": "Test/QA environment" },
+        { "value": "internal", "label": "Internal", "desc": "Company systems only" },
+        { "value": "external", "label": "Customer-facing", "desc": "End users interact" },
+        { "value": "critical", "label": "Critical", "desc": "High-impact production" }
       ]
     },
 
     "data": {
       "type": "enum",
       "label": "Data sensitivity",
-      "description": "What data does it touch?",
+      "description": "How sensitive is the data involved?",
       "category": "context",
       "values": [
-        { "value": "none", "label": "None", "desc": "No sensitive data" },
-        { "value": "int", "label": "Internal", "desc": "Company data" },
-        { "value": "pii", "label": "PII", "desc": "Personal info" },
-        {
-          "value": "regulated",
-          "label": "Regulated",
-          "desc": "Legal/financial/health"
-        }
+        { "value": "none", "label": "None", "desc": "No data concerns" },
+        { "value": "low", "label": "Low", "desc": "Public or non-sensitive" },
+        { "value": "medium", "label": "Medium", "desc": "Internal or business data" },
+        { "value": "high", "label": "High", "desc": "Sensitive or protected" }
       ]
     },
 
     "valid": {
       "type": "flags",
-      "label": "Validation",
-      "description": "How was it verified?",
-      "category": "validation",
+      "label": "Testing",
+      "description": "What testing was done?",
+      "category": "context",
       "values": [
-        { "value": "unit", "label": "Unit tests", "desc": "" },
-        { "value": "integ", "label": "Integration tests", "desc": "" },
-        { "value": "sec", "label": "Security review", "desc": "" },
-        { "value": "expert", "label": "Expert review", "desc": "" },
-        { "value": "deployed", "label": "In production", "desc": "" }
+        { "value": "unit", "label": "Unit tests", "desc": "Isolated component tests" },
+        { "value": "integ", "label": "Integration tests", "desc": "Components working together" },
+        { "value": "e2e", "label": "End-to-end", "desc": "Full workflow tests" },
+        { "value": "perf", "label": "Performance", "desc": "Speed or load testing" },
+        { "value": "sec", "label": "Security scan", "desc": "Vulnerability scanning" }
+      ]
+    },
+
+    "focus": {
+      "type": "flags",
+      "label": "Review focus",
+      "description": "Where should reviewers pay attention?",
+      "category": "guidance",
+      "values": [
+        { "value": "arch", "label": "Architecture", "desc": "Design decisions" },
+        { "value": "code", "label": "Code internals", "desc": "Implementation details" },
+        { "value": "security", "label": "Security", "desc": "Vulnerabilities" },
+        { "value": "edge", "label": "Edge cases", "desc": "Error handling" },
+        { "value": "perf", "label": "Performance", "desc": "Efficiency" }
       ]
     },
 
@@ -214,7 +223,7 @@
       "type": "text",
       "label": "Notes",
       "description": "Additional context?",
-      "category": "meta",
+      "category": "guidance",
       "placeholder": "Context, caveats, details...",
       "multiline": true
     },
@@ -223,7 +232,7 @@
       "type": "date",
       "label": "Created",
       "description": "",
-      "category": "meta",
+      "category": "guidance",
       "auto": true
     }
   },
