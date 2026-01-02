@@ -243,7 +243,7 @@
     "badge": {
       "text": "AI Coauthored",
       "color": "58a6ff",
-      "service": "https://img.shields.io/badge/{text}-↗_see_details-{color}?style={style}"
+      "service": "https://img.shields.io/badge/{text}-↗_see_context-{color}?style={style}"
     },
     "labels": {
       "next": "Next",

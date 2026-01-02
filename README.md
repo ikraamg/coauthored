@@ -1,4 +1,4 @@
-[![AI Coauthored](https://img.shields.io/badge/AI_Coauthored-see_statement-58a6ff?style=flat)](https://coauthored.dev/#v:1;o:~Y29hdXRob3JlZC5kZXY;created:2026-01-01;scope:project;intent:prod;traj:stable;ai:code,debug,refactor,doc,arch;tools:~Q2xhdWRlIENvZGU;review:spot,ran,iter;strengths:backend,domain;confident:code;env:external;data:low;valid:e2e;focus:arch,code,security,edge,perf;notes:~VGhlIGZvY3VzIGhlcmUgd2FzIHRvIGhhdmUgYSBwcm9kdWN0aW9uIHJlYWR5IGFwcHJvYWNoLiBBSSB3YXMgcmVsaWVkIG9uIHNpZ25pZmljYW50bHkgYnV0IHRob3JvdWdobHkgc3RlZXJlZC4gQWN0dWFsIGNvZGUgcXVhbGl0eSBhbmQgcGF0dGVybnMgbmVlZCB0byBiZSBhc3Nlc3NlZCBhbmQgaW1wcm92ZWQgYXMgdGhpcyB3YXMgbm90IGRlZXBseSBmb2N1c2VkIG9uLg)
+[![AI Coauthored](https://img.shields.io/badge/AI_Coauthored-see_context-58a6ff?style=flat)](https://coauthored.dev/#v:1;o:~Y29hdXRob3JlZC5kZXY;created:2026-01-01;scope:project;intent:prod;traj:stable;ai:code,debug,refactor,doc,arch;tools:~Q2xhdWRlIENvZGU;review:spot,ran,iter;strengths:backend,domain;confident:code;env:external;data:low;valid:e2e;focus:arch,code,security,edge,perf;notes:~VGhlIGZvY3VzIGhlcmUgd2FzIHRvIGhhdmUgYSBwcm9kdWN0aW9uIHJlYWR5IGFwcHJvYWNoLiBBSSB3YXMgcmVsaWVkIG9uIHNpZ25pZmljYW50bHkgYnV0IHRob3JvdWdobHkgc3RlZXJlZC4gQWN0dWFsIGNvZGUgcXVhbGl0eSBhbmQgcGF0dGVybnMgbmVlZCB0byBiZSBhc3Nlc3NlZCBhbmQgaW1wcm92ZWQgYXMgdGhpcyB3YXMgbm90IGRlZXBseSBmb2N1c2VkIG9uLg)
 
 # Coauthored
 
@@ -70,7 +70,7 @@ node cli.js markdown 'v:1;o:...'  # Generate markdown badge
 ### Badge
 
 ```markdown
-[![Coauthored](https://img.shields.io/badge/Coauthored-see_statement-58a6ff)](https://coauthored.dev/#v:1;o:co;scope:pr;...)
+[![Coauthored](https://img.shields.io/badge/Coauthored-see_context-58a6ff)](https://coauthored.dev/#v:1;o:co;scope:pr;...)
 ```
 
 ## Project Structure
