@@ -2,7 +2,7 @@
 
 # Coauthored
 
-A config-driven, self-describing format for documenting AI involvement in code. Static, zero dependencies, runs in any browser or Node.js environment. Self-reported, not a certification.
+A transparency tool for documenting AI involvement in code. Config-driven, zero dependencies, runs in any browser or Node.js.
 
 ## Quick Start
 
@@ -133,7 +133,6 @@ git push origin main
 
 No build step.
 
-## Fine Print
+## Note
 
-Statements are self-reported, unverified, subjective, non-binding.
-This is a communication tool, not a certification.
+Statements are self-reported by authors.

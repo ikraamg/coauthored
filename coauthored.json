@@ -4,7 +4,7 @@
     "schemaVersion": "2.0.0",
     "origin": "coauthored.dev",
     "name": "Coauthored",
-    "description": "A simple way to share how AI helped build your code"
+    "description": "A transparency tool for AI-assisted code"
   },
 
   "categories": {
@@ -239,7 +239,7 @@
 
   "ui": {
     "title": "Coauthored",
-    "tagline": "Share how you and AI built this together",
+    "tagline": "A transparency tool for AI-assisted code",
     "badge": {
       "text": "AI Coauthored",
       "color": "58a6ff",
@@ -259,20 +259,15 @@
     },
     "notices": {
       "wizard": {
-        "title": "Good faith disclosure",
-        "text": "This is an informal note about how you used AI, not a legal document or binding statement. There's no audit or verification process. We encourage you to describe your AI collaboration accurately and in your own words."
+        "title": "",
+        "text": "A way to share context about how AI contributed to this code."
       },
       "viewer": {
-        "title": "About this statement",
-        "text": "This is an informal, self-reported note from the author about how AI was involved. It's not legally binding, verified, or audited. It's a good-faith description intended to provide helpful context.",
-        "expanded": [
-          "Informal: This carries no legal weight. It provides context only.",
-          "Voluntary: The author chose to share this information.",
-          "Self-reported: This has not been independently verified.",
-          "Subjective: Terms like 'thorough' may be interpreted differently by different people."
-        ]
+        "title": "",
+        "text": "Self-reported context from the author about AI involvement.",
+        "expanded": []
       }
     },
-    "footer": "Coauthored is an informal way to share how AI helped build your code. Not a certification, not legally binding: transparency through voluntary disclosure."
+    "footer": "A transparency tool for AI-assisted code"
   }
 }
