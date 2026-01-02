@@ -1161,7 +1161,7 @@
     }
 
     .stepper-label {
-      font-size: 0.625rem;
+      display: none;
     }
 
     .step {
