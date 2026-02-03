@@ -64,9 +64,10 @@ function renderDetailField(key, field, value) {
     `
   } else if (field.type === 'flags') {
     const groupId = `${fieldId}-group`
+    const flagValues = Array.isArray(value) ? value : value ? [value] : []
     const cards = field.values
       .map((v, i) => {
-        const checked = Array.isArray(value) && value.includes(v.value) ? ' checked' : ''
+        const checked = flagValues.includes(v.value) ? ' checked' : ''
         const checkboxId = `${fieldId}-${v.value}`
         return `
           <label class="checkbox-card" for="${checkboxId}">
