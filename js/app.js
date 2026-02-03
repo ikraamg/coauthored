@@ -1,14 +1,15 @@
 /**
  * Coauthored App
- * Main orchestration module
+ * Single-page orchestration with risk matrix
  */
 
-import { loadConfig, getOrderedCategoryKeys } from '../config.js'
-import { decode, parseUrl } from '../core.js'
+import { loadConfig } from '../config.js'
+import { decode, encode, parseUrl } from '../core.js'
 import { initTheme, toggleTheme } from './theme.js'
-import { renderWizard, getStepper } from './form.js'
-import { renderViewer, editStatement } from './viewer.js'
-import { initDraft, clearDraft } from './draft.js'
+import { renderMatrix, initMatrix, getMatrixValues } from './matrix.js'
+import { renderDetails, getDetailValues } from './details.js'
+import { renderViewer } from './viewer.js'
+import { renderOutputPanel, updateOutputValues } from './output.js'
 
 /** @type {Object|null} */
 let config = null
@@ -20,7 +21,6 @@ async function init() {
   try {
     config = await loadConfig()
     initTheme(config)
-    initDraft(config)
     initKeyboardShortcuts()
 
     const footerText = document.getElementById('footer-text')
@@ -52,45 +52,101 @@ function route() {
       return
     }
   }
-  renderWizard(config, handleSubmit)
+  renderCreator()
 }
 
 /**
- * Handle form submission - view the statement
+ * Render the matrix creator (single page)
+ * @param {Object} initial - Initial values for editing
  */
-function handleSubmit() {
-  if (window._currentEncoded) {
-    clearDraft()
-    history.pushState(null, '', `#${window._currentEncoded}`)
-    route()
-  }
+function renderCreator(initial = {}) {
+  const matrixHtml = renderMatrix(config, initial)
+  const detailsHtml = renderDetails(config, initial)
+  const outputHtml = renderOutputPanel(config)
+  const labels = config.ui.labels
+
+  document.getElementById('app').innerHTML = `
+    ${matrixHtml}
+    ${detailsHtml}
+    <div class="submit-row">
+      <button type="button" class="btn btn-primary" id="btn-submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        ${labels.submit}
+      </button>
+    </div>
+    ${outputHtml}
+  `
+
+  // Wire up matrix interactivity
+  initMatrix(config, initial, (matrixData) => {
+    updateEncoded()
+  })
+
+  // Wire up submit button
+  document.getElementById('btn-submit')?.addEventListener('click', submitStatement)
+
+  // Wire up detail field changes
+  document.getElementById('app').addEventListener('input', (e) => {
+    if (e.target.dataset.detail || e.target.closest('[data-detail]')) {
+      updateEncoded()
+    }
+  })
+  document.getElementById('app').addEventListener('change', (e) => {
+    if (e.target.dataset.detail || e.target.closest('[data-detail]')) {
+      updateEncoded()
+    }
+  })
+
+  // Initial encoding
+  updateEncoded()
 }
 
 /**
- * Handle edit button click
+ * Build encoded string from current form state and update output panel
+ */
+function updateEncoded() {
+  const { stakes, autonomy } = getMatrixValues()
+  const details = getDetailValues(config)
+
+  const data = { stakes, autonomy, ...details }
+  const encoded = encode(data, config)
+
+  updateOutputValues(encoded, config)
+}
+
+/**
+ * Handle edit button click from viewer
  * @param {string} encoded - Encoded statement to edit
  */
 function handleEdit(encoded) {
-  editStatement(encoded)
-  route()
+  const data = decode(encoded)
+  if (!data) return
+
+  history.pushState(null, '', window.location.pathname)
+  renderCreator({
+    stakes: data.stakes,
+    autonomy: data.autonomy,
+    ...data,
+  })
 }
 
 /**
  * Handle new statement button click
  */
 function handleNew() {
-  clearDraft()
   history.pushState(null, '', window.location.pathname)
   route()
 }
 
 /**
- * Reset the form
+ * Submit the current statement (navigate to viewer)
  */
-function resetForm() {
-  clearDraft()
-  history.pushState(null, '', window.location.pathname)
-  route()
+function submitStatement() {
+  const output = document.getElementById('output-statement')
+  if (output?.value) {
+    history.pushState(null, '', `#${output.value}`)
+    route()
+  }
 }
 
 /**
@@ -98,16 +154,12 @@ function resetForm() {
  */
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
-    const isInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(
-      document.activeElement?.tagName
-    )
     const isMod = e.metaKey || e.ctrlKey
 
-    // Cmd/Ctrl + Enter: Submit
+    // Cmd/Ctrl + Enter: Submit (navigate to viewer)
     if (isMod && e.key === 'Enter') {
       e.preventDefault()
-      const viewBtn = document.querySelector('[data-action="view"]')
-      if (viewBtn) viewBtn.click()
+      submitStatement()
       return
     }
 
@@ -115,36 +167,6 @@ function initKeyboardShortcuts() {
     if (isMod && e.key === 'd') {
       e.preventDefault()
       toggleTheme()
-      return
-    }
-
-    if (isInput) return
-
-    const stepper = getStepper()
-    if (!stepper) return
-
-    // Arrow navigation
-    if (e.key === 'ArrowRight') {
-      e.preventDefault()
-      stepper.next()
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault()
-      stepper.prev()
-    }
-
-    // Number keys for step jump (dynamic based on category count)
-    const stepCount = getOrderedCategoryKeys(config).length
-    const keyNum = parseInt(e.key, 10)
-    if (keyNum >= 1 && keyNum <= stepCount) {
-      e.preventDefault()
-      stepper.goToStep(keyNum - 1)
-    }
-
-    // Escape to reset
-    if (e.key === 'Escape') {
-      if (confirm('Reset the form?')) {
-        resetForm()
-      }
     }
   })
 }

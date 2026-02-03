@@ -1,117 +1,102 @@
 {
   "meta": {
-    "formatVersion": 1,
+    "formatVersion": 2,
     "schemaVersion": "2.0.0",
     "origin": "coauthored.dev",
     "name": "Coauthored",
     "description": "A transparency tool for AI-assisted code"
   },
 
-  "categories": {
-    "basics": {
-      "label": "The Code",
-      "description": "What is being documented?",
-      "order": 1
+  "axes": {
+    "stakes": {
+      "label": "Stakes",
+      "description": "How critical is this code?",
+      "min": 1,
+      "max": 5,
+      "default": 3,
+      "stops": [
+        { "value": 1, "label": "Throwaway" },
+        { "value": 2, "label": "Low" },
+        { "value": 3, "label": "Moderate" },
+        { "value": 4, "label": "High" },
+        { "value": 5, "label": "Critical" }
+      ]
     },
-    "collab": {
-      "label": "Collaboration",
-      "description": "How was this built?",
-      "order": 2
-    },
-    "author": {
-      "label": "Author Assessment",
-      "description": "Your expertise and confidence",
-      "order": 3
-    },
-    "context": {
-      "label": "Context",
-      "description": "Environment and validation",
-      "order": 4
-    },
-    "guidance": {
-      "label": "Reviewer Guidance",
-      "description": "What should reviewers do?",
-      "order": 5
+    "autonomy": {
+      "label": "AI Autonomy",
+      "description": "How much did AI drive this?",
+      "min": 1,
+      "max": 5,
+      "default": 3,
+      "stops": [
+        { "value": 1, "label": "Human-authored" },
+        { "value": 2, "label": "Human-led" },
+        { "value": 3, "label": "Collaborative" },
+        { "value": 4, "label": "AI-led" },
+        { "value": 5, "label": "AI-authored" }
+      ]
     }
   },
 
-  "fields": {
+  "quadrants": {
+    "handcrafted": {
+      "label": "Handcrafted",
+      "description": "Human-driven, low stakes",
+      "color": "009e73",
+      "stakes": [1, 2],
+      "autonomy": [1, 2]
+    },
+    "professional": {
+      "label": "Engineered",
+      "description": "Human-driven, high stakes",
+      "color": "0072b2",
+      "stakes": [4, 5],
+      "autonomy": [1, 2]
+    },
+    "vibe": {
+      "label": "Vibe Coded",
+      "description": "AI-driven, low stakes",
+      "color": "e69f00",
+      "stakes": [1, 2],
+      "autonomy": [4, 5]
+    },
+    "inspection": {
+      "label": "Unvetted",
+      "description": "AI-driven, high stakes",
+      "color": "d55e00",
+      "stakes": [4, 5],
+      "autonomy": [4, 5]
+    },
+    "collaborative": {
+      "label": "Collaborative",
+      "description": "Balanced human-AI partnership",
+      "color": "cc79a7",
+      "stakes": [3, 3],
+      "autonomy": [3, 3]
+    }
+  },
+
+  "details": {
     "scope": {
       "type": "enum",
       "label": "Scope",
-      "description": "What does this statement cover?",
-      "category": "basics",
+      "description": "What does this cover?",
       "values": [
         { "value": "project", "label": "Project", "desc": "Entire repository" },
-        {
-          "value": "pr",
-          "label": "Pull request",
-          "desc": "Specific changeset"
-        },
+        { "value": "pr", "label": "Pull request", "desc": "Specific changeset" },
         { "value": "file", "label": "File", "desc": "Single file" },
-        {
-          "value": "component",
-          "label": "Component",
-          "desc": "Module or feature"
-        }
+        { "value": "component", "label": "Component", "desc": "Module or feature" }
       ]
     },
-
-    "intent": {
-      "type": "flags",
-      "label": "Purpose",
-      "description": "What is this code for?",
-      "category": "basics",
-      "values": [
-        { "value": "spike", "label": "Spike", "desc": "Testing an idea" },
-        { "value": "proto", "label": "Prototype", "desc": "Not production-ready" },
-        { "value": "prod", "label": "Production", "desc": "Live/shipping code" },
-        { "value": "internal", "label": "Internal tool", "desc": "Team or personal use" },
-        { "value": "learn", "label": "Learning", "desc": "Educational exercise" }
-      ]
-    },
-
-    "traj": {
-      "type": "enum",
-      "label": "Lifespan",
-      "description": "How long will this code live?",
-      "category": "basics",
-      "values": [
-        { "value": "throw", "label": "Throwaway", "desc": "One-time use, will discard" },
-        { "value": "short", "label": "Short-lived", "desc": "Temporary solution" },
-        { "value": "evolve", "label": "Evolving", "desc": "Active development" },
-        { "value": "stable", "label": "Long-term", "desc": "Stable, needs maintenance" }
-      ]
-    },
-
-    "ai": {
-      "type": "flags",
-      "label": "AI contributions",
-      "description": "What did AI help with?",
-      "category": "collab",
-      "values": [
-        { "value": "code", "label": "Code generation", "desc": "Wrote new code" },
-        { "value": "debug", "label": "Debugging", "desc": "Found or fixed issues" },
-        { "value": "refactor", "label": "Refactoring", "desc": "Restructured code" },
-        { "value": "test", "label": "Testing", "desc": "Tests or test strategy" },
-        { "value": "doc", "label": "Documentation", "desc": "Comments, READMEs" },
-        { "value": "arch", "label": "Architecture", "desc": "Design decisions" }
-      ]
-    },
-
     "tools": {
       "type": "text",
       "label": "AI tools used",
-      "description": "",
-      "category": "collab",
       "placeholder": "Claude, Cursor, Copilot, etc."
     },
-
     "review": {
       "type": "flags",
-      "label": "Human oversight",
-      "description": "How did you review AI output?",
-      "category": "collab",
+      "label": "Review methods",
+      "description": "How was AI output reviewed?",
       "values": [
         { "value": "spot", "label": "Light review", "desc": "Spot-checked key sections" },
         { "value": "full", "label": "Thorough review", "desc": "Read all the code" },
@@ -121,118 +106,28 @@
         { "value": "iter", "label": "Iterated", "desc": "Multiple rounds with AI" }
       ]
     },
-
-    "strengths": {
+    "watch": {
       "type": "flags",
-      "label": "Your strengths",
-      "description": "Where is your expertise?",
-      "category": "author",
-      "values": [
-        { "value": "arch", "label": "Architecture", "desc": "System design" },
-        { "value": "backend", "label": "Backend", "desc": "Server-side code" },
-        { "value": "frontend", "label": "Frontend", "desc": "UI / client-side" },
-        { "value": "security", "label": "Security", "desc": "Security practices" },
-        { "value": "domain", "label": "Domain", "desc": "Business / problem domain" }
-      ]
-    },
-
-    "confident": {
-      "type": "flags",
-      "label": "Confident areas",
-      "description": "Where are you confident in this code?",
-      "category": "author",
-      "values": [
-        { "value": "arch", "label": "Architecture", "desc": "Design is sound" },
-        { "value": "code", "label": "Code quality", "desc": "Implementation is solid" },
-        { "value": "security", "label": "Security", "desc": "Security considered" },
-        { "value": "edge", "label": "Edge cases", "desc": "Edge cases handled" },
-        { "value": "perf", "label": "Performance", "desc": "Efficient enough" }
-      ]
-    },
-
-    "limits": {
-      "type": "flags",
-      "label": "Known limitations",
-      "description": "What should readers be aware of?",
-      "category": "author",
-      "values": [
-        { "value": "bugs", "label": "May have bugs", "desc": "Not fully debugged" },
-        { "value": "perf", "label": "Not optimized", "desc": "Performance concerns" },
-        { "value": "edge", "label": "Edge cases", "desc": "Some not handled" },
-        { "value": "debt", "label": "Tech debt", "desc": "Needs cleanup later" },
-        { "value": "partial", "label": "Incomplete", "desc": "Work in progress" }
-      ]
-    },
-
-    "env": {
-      "type": "enum",
-      "label": "Environment",
-      "description": "Where does this run?",
-      "category": "context",
-      "values": [
-        { "value": "dev", "label": "Development", "desc": "Local or dev environment" },
-        { "value": "stage", "label": "Staging", "desc": "Test/QA environment" },
-        { "value": "internal", "label": "Internal", "desc": "Company systems only" },
-        { "value": "external", "label": "Customer-facing", "desc": "End users interact" },
-        { "value": "critical", "label": "Critical", "desc": "High-impact production" }
-      ]
-    },
-
-    "data": {
-      "type": "enum",
-      "label": "Data sensitivity",
-      "description": "How sensitive is the data involved?",
-      "category": "context",
-      "values": [
-        { "value": "none", "label": "None", "desc": "No data concerns" },
-        { "value": "low", "label": "Low", "desc": "Public or non-sensitive" },
-        { "value": "medium", "label": "Medium", "desc": "Internal or business data" },
-        { "value": "high", "label": "High", "desc": "Sensitive or protected" }
-      ]
-    },
-
-    "valid": {
-      "type": "flags",
-      "label": "Testing",
-      "description": "What testing was done?",
-      "category": "context",
-      "values": [
-        { "value": "unit", "label": "Unit tests", "desc": "Isolated component tests" },
-        { "value": "integ", "label": "Integration tests", "desc": "Components working together" },
-        { "value": "e2e", "label": "End-to-end", "desc": "Full workflow tests" },
-        { "value": "perf", "label": "Performance", "desc": "Speed or load testing" },
-        { "value": "sec", "label": "Security scan", "desc": "Vulnerability scanning" }
-      ]
-    },
-
-    "focus": {
-      "type": "flags",
-      "label": "Review focus",
+      "label": "Watch areas",
       "description": "Where should reviewers pay attention?",
-      "category": "guidance",
       "values": [
         { "value": "arch", "label": "Architecture", "desc": "Design decisions" },
-        { "value": "code", "label": "Code internals", "desc": "Implementation details" },
-        { "value": "security", "label": "Security", "desc": "Vulnerabilities" },
-        { "value": "edge", "label": "Edge cases", "desc": "Error handling" },
-        { "value": "perf", "label": "Performance", "desc": "Efficiency" }
+        { "value": "code", "label": "Code quality", "desc": "Implementation details" },
+        { "value": "security", "label": "Security", "desc": "Potential vulnerabilities" },
+        { "value": "edge", "label": "Edge cases", "desc": "Error handling incomplete" },
+        { "value": "perf", "label": "Performance", "desc": "Not optimized" },
+        { "value": "tests", "label": "Test coverage", "desc": "Tests incomplete" }
       ]
     },
-
     "notes": {
       "type": "text",
       "label": "Notes",
-      "description": "Additional context?",
-      "category": "guidance",
       "placeholder": "Context, caveats, details...",
       "multiline": true
     },
-
     "created": {
       "type": "date",
       "label": "Created",
-      "description": "",
-      "category": "guidance",
       "auto": true
     }
   },
@@ -240,32 +135,24 @@
   "ui": {
     "title": "Coauthored",
     "tagline": "A transparency tool for AI-assisted code",
+    "heading": "How was this code built?",
     "badge": {
-      "text": "AI Coauthored",
-      "color": "58a6ff",
-      "service": "https://img.shields.io/badge/{text}-↗_see_context-{color}?style={style}"
+      "service": "https://img.shields.io/badge/{text}-{color}?style={style}"
     },
     "labels": {
-      "next": "Next",
-      "previous": "Previous",
       "submit": "View",
       "edit": "Edit",
       "createNew": "Create New",
-      "livePreview": "Preview",
       "share": "Share",
       "url": "URL",
       "markdown": "Markdown",
-      "copy": "Copy"
+      "copy": "Copy",
+      "details": "Details",
+      "collapse": "Collapse"
     },
     "notices": {
-      "wizard": {
-        "title": "",
-        "text": "A way to share context about how AI contributed to this code."
-      },
       "viewer": {
-        "title": "",
-        "text": "Self-reported context from the author about AI involvement.",
-        "expanded": []
+        "text": "Self-reported context from the author about AI involvement."
       }
     },
     "footer": "A transparency tool for AI-assisted code"

@@ -2,9 +2,9 @@
  * Config Loader - loads and validates coauthored config
  */
 
-const REQUIRED_KEYS = ['meta', 'categories', 'fields', 'ui']
+const REQUIRED_KEYS = ['meta', 'axes', 'quadrants', 'details', 'ui']
 const REQUIRED_META = ['formatVersion', 'schemaVersion', 'origin']
-const VALID_FIELD_TYPES = ['enum', 'flags', 'text', 'date']
+const VALID_DETAIL_TYPES = ['enum', 'flags', 'text', 'date']
 
 /**
  * Validate config structure
@@ -20,17 +20,30 @@ export function validateConfig(config) {
     if (!config.meta[key]) throw new Error(`Missing required meta key: ${key}`)
   }
 
-  for (const [key, field] of Object.entries(config.fields)) {
-    if (!VALID_FIELD_TYPES.includes(field.type)) {
-      throw new Error(`Invalid field type for ${key}: ${field.type}`)
+  for (const [key, axis] of Object.entries(config.axes)) {
+    if (typeof axis.min !== 'number' || typeof axis.max !== 'number') {
+      throw new Error(`Axis ${key} requires numeric min and max`)
+    }
+    if (!axis.stops?.length) {
+      throw new Error(`Axis ${key} requires stops array`)
+    }
+  }
+
+  for (const [key, q] of Object.entries(config.quadrants)) {
+    if (!q.label || !q.color) {
+      throw new Error(`Quadrant ${key} requires label and color`)
+    }
+    if (!q.stakes || !q.autonomy) {
+      throw new Error(`Quadrant ${key} requires stakes and autonomy ranges`)
+    }
+  }
+
+  for (const [key, field] of Object.entries(config.details)) {
+    if (!VALID_DETAIL_TYPES.includes(field.type)) {
+      throw new Error(`Invalid detail type for ${key}: ${field.type}`)
     }
     if ((field.type === 'enum' || field.type === 'flags') && !field.values) {
-      throw new Error(`Field ${key} requires values`)
-    }
-    if (field.category && !config.categories[field.category]) {
-      throw new Error(
-        `Field ${key} references unknown category: ${field.category}`
-      )
+      throw new Error(`Detail ${key} requires values`)
     }
   }
 
@@ -53,80 +66,63 @@ export async function loadConfig(url = './coauthored.json') {
 }
 
 /**
- * Get nested value from object using dot notation
- * @param {Object} obj - Object to search
- * @param {string} path - Dot-notation path (e.g., 'risk.deploy')
- * @returns {*} Value at path or undefined
- */
-export function getNestedValue(obj, path) {
-  return path.split('.').reduce((o, k) => o?.[k], obj)
-}
-
-/**
- * Get fields grouped by category, sorted by category order
+ * Detect which quadrant a (stakes, autonomy) position falls into
+ * @param {number} stakes - Stakes value (1-5)
+ * @param {number} autonomy - Autonomy value (1-5)
  * @param {Object} config - Loaded config
- * @returns {Object} Fields grouped by category key
+ * @returns {Object} { key, label, description, color }
  */
-export function getFieldsByCategory(config) {
-  const grouped = {}
-
-  for (const [key, field] of Object.entries(config.fields)) {
-    const cat = field.category || 'other'
-    if (!grouped[cat]) grouped[cat] = []
-    grouped[cat].push({ key, ...field })
+export function getQuadrant(stakes, autonomy, config) {
+  for (const [key, q] of Object.entries(config.quadrants)) {
+    const [sMin, sMax] = q.stakes
+    const [aMin, aMax] = q.autonomy
+    if (stakes >= sMin && stakes <= sMax && autonomy >= aMin && autonomy <= aMax) {
+      return { key, ...q }
+    }
   }
 
-  const sorted = {}
-  for (const cat of getOrderedCategoryKeys(config)) {
-    if (grouped[cat]) sorted[cat] = grouped[cat]
+  // Fallback to nearest quadrant by distance
+  let best = null
+  let bestDist = Infinity
+  for (const [key, q] of Object.entries(config.quadrants)) {
+    const sMid = (q.stakes[0] + q.stakes[1]) / 2
+    const aMid = (q.autonomy[0] + q.autonomy[1]) / 2
+    const dist = Math.abs(stakes - sMid) + Math.abs(autonomy - aMid)
+    if (dist < bestDist) {
+      bestDist = dist
+      best = { key, ...q }
+    }
   }
-
-  for (const [cat, fields] of Object.entries(grouped)) {
-    if (!sorted[cat]) sorted[cat] = fields
-  }
-
-  return sorted
+  return best
 }
 
 /**
- * Get human-readable label for a field value
- * @param {string} fieldKey - Field key (e.g., 'review')
- * @param {string} value - Field value (e.g., 'func')
+ * Get human-readable label for an axis stop value
+ * @param {string} axisKey - Axis key (e.g., 'stakes')
+ * @param {number} value - Axis value
+ * @param {Object} config - Loaded config
+ * @returns {string} Human-readable label
+ */
+export function getAxisLabel(axisKey, value, config) {
+  const axis = config.axes[axisKey]
+  if (!axis) return String(value)
+  const stop = axis.stops.find((s) => s.value === value)
+  return stop?.label || String(value)
+}
+
+/**
+ * Get human-readable label for a detail field value
+ * @param {string} fieldKey - Detail field key
+ * @param {string} value - Field value
  * @param {Object} config - Loaded config
  * @returns {string} Human-readable label
  */
 export function getLabel(fieldKey, value, config) {
   if (!value) return 'Not specified'
-
-  const field = config.fields[fieldKey]
+  const field = config.details[fieldKey]
   if (!field?.values) return value
-
   const found = field.values.find((v) => v.value === value)
   return found?.label || value
-}
-
-/**
- * Get value description from config
- * @param {string} fieldKey - Field key (e.g., 'intent')
- * @param {string} value - Value key (e.g., 'prod')
- * @param {Object} config - Loaded config
- * @returns {string} Value description or empty string
- */
-export function getValueDesc(fieldKey, value, config) {
-  const field = config.fields[fieldKey]
-  if (!field?.values) return ''
-
-  const found = field.values.find((v) => v.value === value)
-  return found?.desc || ''
-}
-
-/**
- * Get badge config
- * @param {Object} config - Loaded config
- * @returns {Object} { text, color, service }
- */
-export function getBadge(config) {
-  return config.ui.badge
 }
 
 /**
@@ -136,17 +132,6 @@ export function getBadge(config) {
  */
 export function getLabels(config) {
   return config.ui.labels
-}
-
-/**
- * Get category keys sorted by their order property
- * @param {Object} config - Loaded config
- * @returns {string[]} Category keys in order
- */
-export function getOrderedCategoryKeys(config) {
-  return Object.entries(config.categories)
-    .sort((a, b) => a[1].order - b[1].order)
-    .map(([key]) => key)
 }
 
 /**
@@ -162,7 +147,7 @@ export function getBaseUrl() {
 /**
  * Get storage key with app-specific prefix
  * @param {Object} config - Loaded config
- * @param {string} suffix - Key suffix (e.g., 'draft', 'theme')
+ * @param {string} suffix - Key suffix
  * @returns {string} Full storage key
  */
 export function getStorageKey(config, suffix) {
@@ -173,11 +158,11 @@ export function getStorageKey(config, suffix) {
 /**
  * Get badge service URL pattern
  * @param {Object} config - Loaded config
- * @returns {string} Badge service URL pattern with {text}, {color}, {style} placeholders
+ * @returns {string} Badge service URL pattern
  */
 export function getBadgeServiceUrl(config) {
   return (
     config?.ui?.badge?.service ||
-    'https://img.shields.io/badge/{text}-↗_see_details-{color}?style={style}'
+    'https://img.shields.io/badge/{text}-{color}?style={style}'
   )
 }

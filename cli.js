@@ -12,7 +12,7 @@
 
 import { readFileSync } from 'fs'
 import { encode, decode, badgeUrl, badgeMarkdown } from './core.js'
-import { validateConfig, getBadge } from './config.js'
+import { validateConfig, getQuadrant, getBadgeServiceUrl } from './config.js'
 
 function loadConfigSync(path = './coauthored.json') {
   const raw = readFileSync(path, 'utf8')
@@ -33,9 +33,9 @@ Usage:
   node cli.js markdown <statement>   Generate markdown badge
 
 Examples:
-  echo '{"scope":"pr","intent":["explore","prod"]}' > data.json && node cli.js encode data.json
-  node cli.js decode 'v:1;o:co;scope:pr;intent:explore,prod'
-  node cli.js markdown 'v:1;o:co;scope:pr;ai:code;tool:claude'
+  echo '{"stakes":4,"autonomy":3,"scope":"pr"}' > data.json && node cli.js encode data.json
+  node cli.js decode 'v:2;o:coauthored.dev;stakes:4;autonomy:3'
+  node cli.js markdown 'v:2;o:coauthored.dev;stakes:4;autonomy:3;scope:pr'
 `)
 }
 
@@ -63,6 +63,10 @@ try {
         process.exit(1)
       }
       const data = decode(statement)
+      if (data && data._v === 2 && data.stakes && data.autonomy) {
+        const q = getQuadrant(data.stakes, data.autonomy, config)
+        if (q) data._quadrant = q.label
+      }
       console.log(JSON.stringify(data, null, 2))
       break
     }
@@ -74,8 +78,9 @@ try {
       console.log(`Config valid: ${configPath}`)
       console.log(`  Origin: ${cfg.meta.origin}`)
       console.log(`  Schema version: ${cfg.meta.schemaVersion}`)
-      console.log(`  Fields: ${Object.keys(cfg.fields).length}`)
-      console.log(`  Categories: ${Object.keys(cfg.categories).length}`)
+      console.log(`  Axes: ${Object.keys(cfg.axes).join(', ')}`)
+      console.log(`  Quadrants: ${Object.keys(cfg.quadrants).length}`)
+      console.log(`  Details: ${Object.keys(cfg.details).length}`)
       break
     }
 
@@ -85,8 +90,14 @@ try {
         console.error('Usage: node cli.js badge <statement>')
         process.exit(1)
       }
-      const badge = getBadge(config)
-      console.log(badgeUrl(badge.text, badge.color))
+      const data = decode(statement)
+      let text = 'AI Coauthored'
+      let color = '58a6ff'
+      if (data && data._v === 2) {
+        const q = getQuadrant(data.stakes || 3, data.autonomy || 3, config)
+        if (q) { text = q.label; color = q.color }
+      }
+      console.log(badgeUrl(text, color, getBadgeServiceUrl(config)))
       break
     }
 
@@ -96,10 +107,17 @@ try {
         console.error('Usage: node cli.js markdown <statement>')
         process.exit(1)
       }
-      const badge = getBadge(config)
-      console.log(
-        badgeMarkdown(statement, badge.text, badge.color, config.meta?.url)
-      )
+      const data = decode(statement)
+      let text = 'AI Coauthored'
+      let color = '58a6ff'
+      if (data && data._v === 2) {
+        const q = getQuadrant(data.stakes || 3, data.autonomy || 3, config)
+        if (q) { text = q.label; color = q.color }
+      }
+      const baseUrl = config.meta?.origin
+        ? `https://${config.meta.origin}`
+        : 'https://coauthored.dev'
+      console.log(badgeMarkdown(statement, text, color, baseUrl, getBadgeServiceUrl(config)))
       break
     }
 
